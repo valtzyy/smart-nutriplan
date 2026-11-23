@@ -151,7 +151,7 @@ Lokal (`npm run dev`, 390 px, Supabase proyek ini):
 - `/daftar?ref=…` menampilkan "Kamu diajak oleh teman (kode 832B6AD1)" ✅
 - Daftar tanpa centang persetujuan → "Centang persetujuan dulu, ya." ✅; dengan centang → akun uji ke-2 ("Budi") terdaftar
   dan masuk onboarding (trigger `handle_new_user` versi 0003 berjalan tanpa galat) ✅
-- ⏳ Cek oleh admin: /admin → AARRR "Datang lewat rujukan" = 1 pengguna; /admin/masukan menampilkan jawaban "[UJI CLAUDE]"
+- ✅ Dicek admin (23 Nov 2026): /admin → AARRR "Datang lewat rujukan" = 1 pengguna; /admin/masukan menampilkan jawaban "[UJI CLAUDE]"
   dengan NPS 8.
 
 Akun uji (kredensial di `.env.test.local`, tidak di-commit): `annisa.uji.…@example.com` (perujuk) dan
