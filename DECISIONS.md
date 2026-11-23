@@ -120,3 +120,18 @@ PRD > ALGORITMA > DATABASE > DESIGN-SYSTEM.
     dibanding anggaran. Anggaran **tidak** memengaruhi pemilihan menu (algoritma 02-ALGORITMA tidak diubah).
 45. **Pratinjau tautan & URL email** memakai `VERCEL_PROJECT_PRODUCTION_URL` (domain publik), bukan URL deployment yang
     dilindungi login Vercel; nilai `NEXT_PUBLIC_SITE_URL` berisi localhost diabaikan di Vercel.
+
+## Premium — uji minat tanpa pembayaran
+
+46. **`/premium` hanya uji minat ("Wizard of Oz", KK minggu 7)** — tim belum memakai payment gateway. Halaman berisi
+    perbandingan Gratis vs Premium, harga rencana Rp20.000/bulan (KK 5.2), tombol **"Saya tertarik"** (+ pilihan fitur
+    yang paling dibutuhkan, opsional) dan **"Chat ahli gizi via WhatsApp"** untuk konsultasi yang dilayani manual. Teks
+    menegaskan belum ada pembayaran/biaya.
+47. Dicatat sebagai event (tanpa migrasi baru): `premium_viewed`, `premium_interest {fitur[]}`, `premium_chat_clicked`.
+    Klik chat lewat route `/premium/chat` supaya tercatat dulu, lalu dialihkan ke `wa.me/<KONTAK.whatsappLink>` dengan
+    pesan pembuka; selama nomor masih dummy (kosong) diarahkan ke `/tentang` dan tombolnya berlabel "Hubungi tim".
+48. Kartu **Revenue (uji minat)** di /admin = pengguna aktif 7 hari terakhir yang menekan "Saya tertarik" ÷ pengguna aktif
+    7 hari (pengganti sementara "konversi berbayar"); ditambah daftar fitur premium paling diminati (dari pilihan terakhir
+    tiap pengguna).
+49. Fitur premium tetap **belum dibangun** (konsultasi, meal plan kondisi medis, rencana mingguan) — menunggu bukti minat
+    dan ahli gizi.

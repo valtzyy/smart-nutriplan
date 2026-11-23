@@ -1,4 +1,4 @@
-import { ChevronRight, Info, LogOut, MessageSquareHeart, Pencil, ShieldCheck } from "lucide-react";
+import { ChevronRight, Info, LogOut, MessageSquareHeart, Pencil, ShieldCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { keluarAction } from "@/app/(auth)/actions";
 import { AjakTeman } from "@/components/profile/AjakTeman";
@@ -18,6 +18,7 @@ import { getSiteUrl } from "@/lib/site-url";
 export const metadata = { title: "Profil — Smart NutriPlan" };
 
 const TAUTAN = [
+  { href: "/premium", label: "Smart NutriPlan Premium", Icon: Sparkles },
   { href: "/masukan", label: "Beri masukan", Icon: MessageSquareHeart },
   { href: "/tentang", label: "Tentang Kami & kontak", Icon: Info },
   { href: "/privasi", label: "Ketentuan & Privasi", Icon: ShieldCheck },

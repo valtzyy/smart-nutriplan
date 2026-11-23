@@ -92,7 +92,10 @@ export type EventName =
   | "slot_empty"
   | "profile_updated"
   | "logout"
-  | "feedback_submitted";
+  | "feedback_submitted"
+  | "premium_viewed"
+  | "premium_interest"
+  | "premium_chat_clicked";
 
 /** Profil yang sudah lengkap (setelah onboarding). */
 export interface CompleteProfile extends ProfileRow {

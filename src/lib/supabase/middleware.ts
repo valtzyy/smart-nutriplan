@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseEnv } from "./env";
 
 /** Rute yang butuh login (diperkuat lagi di server component untuk aturan onboarding & role). */
-const PROTECTED_PREFIXES = ["/onboarding", "/beranda", "/meal-plan", "/menu", "/profil", "/masukan"];
+const PROTECTED_PREFIXES = ["/onboarding", "/beranda", "/meal-plan", "/menu", "/profil", "/masukan", "/premium"];
 
 export function isProtectedPath(pathname: string): boolean {
   return PROTECTED_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));

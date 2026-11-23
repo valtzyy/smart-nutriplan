@@ -56,6 +56,45 @@ describe("metrik admin", () => {
   });
 });
 
+describe("minat premium (uji tanpa pembayaran)", () => {
+  it("menghitung pengguna unik, % dari pengguna aktif 7 hari, dan fitur teratas dari minat terakhir", () => {
+    const p = [
+      { id: "a", created_at: "2026-11-20T03:00:00Z", onboarding_selesai: true },
+      { id: "b", created_at: "2026-11-20T03:00:00Z", onboarding_selesai: true },
+      { id: "c", created_at: "2026-11-20T03:00:00Z", onboarding_selesai: true },
+      { id: "d", created_at: "2026-11-20T03:00:00Z", onboarding_selesai: true },
+    ];
+    const t = "2026-11-22T03:00:00Z";
+    const e = [
+      ...["a", "b", "c", "d"].map((u) => ({ user_id: u, nama: "plan_viewed", created_at: t })),
+      { user_id: "a", nama: "premium_viewed", created_at: t },
+      { user_id: "a", nama: "premium_viewed", created_at: t },
+      { user_id: "b", nama: "premium_viewed", created_at: t },
+      { user_id: "a", nama: "premium_interest", created_at: "2026-11-22T01:00:00Z", meta: { fitur: ["mingguan"] } },
+      // minat terakhir a menggantikan yang pertama
+      { user_id: "a", nama: "premium_interest", created_at: "2026-11-22T02:00:00Z", meta: { fitur: ["konsultasi", "kondisi_medis"] } },
+      { user_id: "b", nama: "premium_interest", created_at: t, meta: { fitur: ["konsultasi"] } },
+      { user_id: "b", nama: "premium_chat_clicked", created_at: t },
+    ];
+    const m = computeAdminMetrics({ profiles: p, events: e, plans: [], today: "2026-11-23" });
+    expect(m.aarrr.premium).toEqual({
+      melihat: 2,
+      tertarik: 2,
+      klikChat: 1,
+      minat: 50,
+      fiturTeratas: [
+        { kode: "konsultasi", jumlah: 2 },
+        { kode: "kondisi_medis", jumlah: 1 },
+      ],
+    });
+  });
+
+  it("tanpa data → nol & null", () => {
+    const m = computeAdminMetrics({ profiles: [], events: [], plans: [], today: "2026-11-23" });
+    expect(m.aarrr.premium).toEqual({ melihat: 0, tertarik: 0, klikChat: 0, minat: null, fiturTeratas: [] });
+  });
+});
+
 describe("AARRR & NPS", () => {
   it("akuisisi, aktivasi, retensi D7 & rujukan belum tersedia pada data awal", () => {
     const m = computeAdminMetrics({ profiles, events, plans, today: "2026-11-23" });

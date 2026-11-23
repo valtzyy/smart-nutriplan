@@ -11,8 +11,11 @@ import {
 import { requireAdmin } from "@/lib/auth";
 import { formatTanggal, getJakartaNow, tambahHari } from "@/lib/date";
 import { formatAngka } from "@/lib/labels";
+import { FITUR_PREMIUM } from "@/lib/premium";
 
 export const metadata = { title: "Admin — Smart NutriPlan" };
+
+const LABEL_FITUR: Record<string, string> = Object.fromEntries(FITUR_PREMIUM.map((f) => [f.kode, f.label]));
 
 export default async function AdminPage() {
   const { supabase } = await requireAdmin();
@@ -20,7 +23,7 @@ export default async function AdminPage() {
   // Kolom/tabel migrasi 0003 dibaca dengan fallback supaya halaman tetap jalan sebelum migrasi dijalankan.
   const [profilesBaru, events, plans, feedback] = await Promise.all([
     fetchAllOrNull<MetricProfile>(supabase, "profiles", "id, created_at, onboarding_selesai, dirujuk_oleh"),
-    fetchAll<MetricEvent>(supabase, "events", "id, user_id, nama, created_at"),
+    fetchAll<MetricEvent>(supabase, "events", "id, user_id, nama, created_at, meta"),
     fetchAll<MetricPlan>(supabase, "meal_plans", "id, tanggal", { column: "tanggal", gte: tambahHari(today, -13) }),
     fetchAllOrNull<MetricFeedback>(supabase, "feedback", "id, nps, created_at"),
   ]);
@@ -63,10 +66,10 @@ export default async function AdminPage() {
       note: `${a.nps.jumlah} jawaban · ${a.nps.promotor} promotor · ${a.nps.detraktor} detraktor`,
     },
     {
-      tahap: "Revenue",
-      label: "Konversi berbayar",
-      value: "—",
-      note: "Belum ada fitur berbayar (ditunda, KK 7.2)",
+      tahap: "Revenue (uji minat)",
+      label: "Pengguna aktif yang tertarik Premium",
+      value: pct(a.premium.minat),
+      note: `${a.premium.tertarik} tertarik · ${a.premium.klikChat} klik chat · ${a.premium.melihat} lihat halaman · belum ada pembayaran`,
     },
   ];
 
@@ -113,6 +116,19 @@ export default async function AdminPage() {
           ))}
         </div>
       </section>
+      {a.premium.fiturTeratas.length > 0 && (
+        <section className="flex flex-col gap-2">
+          <h2 className="text-h3-style text-text">Fitur premium paling diminati</h2>
+          <ul className="divide-y divide-border rounded-lg border border-border bg-surface">
+            {a.premium.fiturTeratas.map((f) => (
+              <li key={f.kode} className="flex items-center justify-between gap-3 px-4 py-3 text-small">
+                <span className="text-text">{LABEL_FITUR[f.kode] ?? f.kode}</span>
+                <span className="font-semibold text-text">{f.jumlah}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <section className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-h3-style text-text">14 hari terakhir</h2>

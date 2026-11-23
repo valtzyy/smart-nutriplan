@@ -1,4 +1,4 @@
-import { ChevronRight, Flame, MessageSquareHeart, Moon } from "lucide-react";
+import { ChevronRight, Flame, MessageSquareHeart, Moon, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { BiayaCard } from "@/components/plan/BiayaCard";
 import { AllSlotsEmpty, SlotEmpty } from "@/components/plan/SlotEmpty";
@@ -121,6 +121,18 @@ export default async function BerandaPage() {
           <span className="flex flex-1 flex-col">
             <span className="text-body font-semibold text-text">Bantu kami jadi lebih baik</span>
             <span className="text-small text-text-muted">Beri masukan, cuma 1 menit</span>
+          </span>
+          <ChevronRight size={18} aria-hidden className="text-text-muted" />
+        </Link>
+
+        <Link
+          href="/premium"
+          className="flex items-center gap-3 rounded-lg border border-border bg-primary-soft p-4 transition-colors active:bg-primary-soft/60"
+        >
+          <Sparkles size={22} aria-hidden className="shrink-0 text-primary-strong" />
+          <span className="flex flex-1 flex-col">
+            <span className="text-body font-semibold text-text">Butuh pendampingan ahli gizi?</span>
+            <span className="text-small text-text-muted">Lihat rencana Smart NutriPlan Premium</span>
           </span>
           <ChevronRight size={18} aria-hidden className="text-text-muted" />
         </Link>

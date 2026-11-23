@@ -35,11 +35,25 @@ export interface AarrrMetrics {
   rujukan: number | null;
   rujukanJumlah: number;
   nps: NpsResult;
+  premium: PremiumMetrics;
 }
 export interface MetricEvent {
   user_id: string | null;
   nama: string;
   created_at: string;
+  meta?: Record<string, unknown> | null;
+}
+
+/** Uji minat Premium (tanpa pembayaran) — pengganti sementara metrik Revenue. */
+export interface PremiumMetrics {
+  /** Pengguna unik yang membuka halaman Premium / menekan "Saya tertarik" / menekan chat ahli gizi. */
+  melihat: number;
+  tertarik: number;
+  klikChat: number;
+  /** % pengguna aktif 7 hari terakhir yang menyatakan tertarik; null bila belum ada pengguna aktif. */
+  minat: number | null;
+  /** Fitur premium yang dipilih, urut terbanyak. */
+  fiturTeratas: Array<{ kode: string; jumlah: number }>;
 }
 export interface MetricPlan {
   tanggal: string;
@@ -181,7 +195,33 @@ export function computeAdminMetrics(input: {
   const adaKolomRujukan = profiles.some((p) => p.dirujuk_oleh !== undefined);
   const dirujuk = profiles.filter((p) => p.dirujuk_oleh).length;
 
+  const unik = (nama: string) => new Set(events.filter((e) => e.nama === nama && e.user_id).map((e) => e.user_id));
+  const tertarik = unik("premium_interest");
+  const fiturCount = new Map<string, number>();
+  // Hitung pilihan fitur dari minat TERAKHIR tiap pengguna (menghindari dobel bila menekan berkali-kali).
+  const minatTerakhir = new Map<string, MetricEvent>();
+  for (const e of events) {
+    if (e.nama !== "premium_interest" || !e.user_id) continue;
+    const prev = minatTerakhir.get(e.user_id);
+    if (!prev || prev.created_at < e.created_at) minatTerakhir.set(e.user_id, e);
+  }
+  for (const e of minatTerakhir.values()) {
+    const fitur = Array.isArray(e.meta?.fitur) ? (e.meta?.fitur as unknown[]) : [];
+    for (const f of fitur) if (typeof f === "string") fiturCount.set(f, (fiturCount.get(f) ?? 0) + 1);
+  }
+  const tertarikAktif = [...tertarik].filter((u) => u && aktif7.has(u)).length;
+  const premium: PremiumMetrics = {
+    melihat: unik("premium_viewed").size,
+    tertarik: tertarik.size,
+    klikChat: unik("premium_chat_clicked").size,
+    minat: persen(tertarikAktif, aktif7.size),
+    fiturTeratas: [...fiturCount.entries()]
+      .map(([kode, jumlah]) => ({ kode, jumlah }))
+      .sort((a, b) => b.jumlah - a.jumlah || a.kode.localeCompare(b.kode)),
+  };
+
   const aarrr: AarrrMetrics = {
+    premium,
     akuisisi7Hari: akuisisi7,
     akuisisi7HariSebelumnya: akuisisiSebelumnya,
     aktivasi: persen(aktif, profiles.length),

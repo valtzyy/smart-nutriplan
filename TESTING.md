@@ -157,3 +157,11 @@ Lokal (`npm run dev`, 390 px, Supabase proyek ini):
 Akun uji (kredensial di `.env.test.local`, tidak di-commit): `annisa.uji.…@example.com` (perujuk) dan
 `budi.rujukan.…@example.com` (dirujuk, onboarding belum diisi). Hapus keduanya di Supabase → Authentication → Users
 sebelum menghitung metrik sungguhan; masukan uji ikut terhapus (cascade).
+
+## Premium (uji minat) — lokal, Supabase proyek ini, 390 px
+- `/premium`: hero Rp20.000/bulan "Segera hadir", kotak info "belum ada pembayaran", tabel Gratis vs Premium ✅
+- Pilih fitur "Konsultasi" + "Mingguan" → "Saya tertarik" → "Terima kasih, minatmu sudah kami catat!" ✅
+- "Hubungi tim" → `/premium/chat` (307) → `/tentang` karena nomor WhatsApp masih dummy ✅
+- Tidak ada galat server / peringatan `[events]` ✅. Tes unit metrik minat premium (pengguna unik, % pengguna aktif 7 hari,
+  fitur teratas dari minat terakhir) ✅ — total **98 tes lulus**.
+- ⏳ Cek di /admin: kartu "Revenue (uji minat)" dan daftar "Fitur premium paling diminati" (akun uji Budi: konsultasi, mingguan).
