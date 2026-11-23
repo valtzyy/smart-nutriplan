@@ -17,7 +17,7 @@ export const metadata = { title: "Beranda — Smart NutriPlan" };
 export default async function BerandaPage() {
   const session = await requireOnboarded();
   const view = await loadTodayView(session);
-  await logEvent(session.supabase, session.user.id, "plan_viewed", { page: "beranda" });
+  logEvent(session.supabase, session.user.id, "plan_viewed", { page: "beranda" });
 
   const target = view.plan.target_kalori;
   const persen = target > 0 ? Math.min(100, Math.round((view.totals.kalori / target) * 100)) : 0;

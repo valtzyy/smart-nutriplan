@@ -49,7 +49,7 @@ export async function daftarAction(_prev: ActionState, fd: FormData): Promise<Ac
     return { ok: false, fieldErrors: { email: "Email ini sudah terdaftar. Coba masuk." } };
   }
   if (data.session && data.user) {
-    await logEvent(supabase, data.user.id, "sign_up");
+    logEvent(supabase, data.user.id, "sign_up");
     redirect("/onboarding/profil");
   }
   redirect("/cek-email");
@@ -71,7 +71,7 @@ export async function masukAction(_prev: ActionState, fd: FormData): Promise<Act
     if (error && error.status && error.status >= 500) return { ok: false, error: PESAN_GALAT };
     return { ok: false, error: "Email atau kata sandi salah." };
   }
-  await logEvent(supabase, data.user.id, "login");
+  logEvent(supabase, data.user.id, "login");
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", data.user.id).maybeSingle();
   const home = homePathFor(profile as ProfileRow | null);
@@ -120,7 +120,7 @@ export async function keluarAction(): Promise<void> {
   if (getSupabaseEnv()) {
     const supabase = await createClient();
     const { data } = await supabase.auth.getUser();
-    if (data.user) await logEvent(supabase, data.user.id, "logout");
+    if (data.user) await logEvent(supabase, data.user.id, "logout"); // ditunggu: sesi dihapus sesudahnya
     await supabase.auth.signOut();
   }
   redirect("/");

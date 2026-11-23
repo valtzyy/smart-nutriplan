@@ -20,7 +20,7 @@ export function Chip({ label, selected, onToggle, mode = "checkbox" }: ChipProps
       aria-checked={selected}
       onClick={onToggle}
       className={cn(
-        "inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 py-2 text-label-style transition-colors",
+        "inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 py-2 text-label-style transition duration-100 select-none active:scale-95",
         selected
           ? "border-primary-strong bg-primary-soft text-primary-strong"
           : "border-border bg-surface text-text hover:border-primary",

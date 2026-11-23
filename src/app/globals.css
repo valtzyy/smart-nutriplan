@@ -104,3 +104,13 @@
 .animate-toast-in {
   animation: toast-in 180ms ease-out;
 }
+
+/* Mobile: hilangkan kotak abu-abu bawaan saat tap (diganti state :active per komponen) dan jeda double-tap. */
+html {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+a,
+button {
+  -webkit-touch-callout: none;
+}

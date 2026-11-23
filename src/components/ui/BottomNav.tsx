@@ -1,7 +1,7 @@
 "use client";
 
-import { CalendarDays, Home, User } from "lucide-react";
-import Link from "next/link";
+import { CalendarDays, Home, User, type LucideIcon } from "lucide-react";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "./cn";
 
@@ -10,6 +10,30 @@ const TABS = [
   { href: "/meal-plan", label: "Meal Plan", Icon: CalendarDays },
   { href: "/profil", label: "Profil", Icon: User },
 ];
+
+/** Isi tab; langsung tampil aktif begitu ditekan (sebelum halaman selesai dimuat). */
+function TabContent({ label, Icon, active }: { label: string; Icon: LucideIcon; active: boolean }) {
+  const { pending } = useLinkStatus();
+  const on = active || pending;
+  return (
+    <span
+      className={cn(
+        "flex h-full flex-col items-center justify-center gap-1 transition-colors",
+        on ? "text-label-style text-primary-strong" : "text-caption text-text-muted",
+      )}
+    >
+      <span
+        className={cn(
+          "flex h-8 w-14 items-center justify-center rounded-full transition-colors",
+          on && "bg-primary-soft",
+        )}
+      >
+        <Icon size={22} aria-hidden className={cn(pending && "animate-pulse")} />
+      </span>
+      {label}
+    </span>
+  );
+}
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -26,13 +50,9 @@ export function BottomNav() {
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={cn(
-                  "flex h-full flex-col items-center justify-center gap-1",
-                  active ? "text-label-style text-primary-strong" : "text-caption text-text-muted",
-                )}
+                className="block h-full active:bg-primary-soft/60"
               >
-                <Icon size={24} aria-hidden />
-                {label}
+                <TabContent label={label} Icon={Icon} active={active} />
               </Link>
             </li>
           );

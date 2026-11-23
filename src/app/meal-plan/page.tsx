@@ -15,7 +15,7 @@ export const metadata = { title: "Meal plan hari ini — Smart NutriPlan" };
 export default async function MealPlanPage() {
   const session = await requireOnboarded();
   const view = await loadTodayView(session);
-  await logEvent(session.supabase, session.user.id, "plan_viewed", { page: "meal-plan" });
+  logEvent(session.supabase, session.user.id, "plan_viewed", { page: "meal-plan" });
   const sisa = Math.max(0, MAKS_BUAT_ULANG - view.plan.regenerate_count);
   const alergen = view.userAllergens.map((a) => a.nama.toLowerCase());
 

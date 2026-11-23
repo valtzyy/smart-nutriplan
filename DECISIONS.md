@@ -77,3 +77,18 @@ PRD > ALGORITMA > DATABASE > DESIGN-SYSTEM.
 ## Tidak ada perubahan skema
 
 29. Tidak ada migrasi baru; `0001_init.sql` dan `0002_seed.sql` dipakai apa adanya.
+
+## Performa & UX (setelah uji di HP)
+
+30. **Region fungsi Vercel = `sin1` (Singapura)** lewat `vercel.json`, sama dengan region Supabase. Sebelumnya fungsi
+    berjalan di `iad1` (AS) sehingga tiap query menyeberangi Pasifik (~200–250 ms per query).
+31. **`auth.getClaims()`** menggantikan `getUser()` di proxy dan `getSession`: JWT diverifikasi lokal dengan kunci ES256
+    (JWKS di-cache), tanpa round-trip ke Auth server di setiap request.
+32. **Query paralel**: meal plan + katalog menu + alergen + riwayat diambil dalam satu `Promise.all`; detail menu juga.
+    Upsert item mengembalikan baris (`select`) sehingga tidak perlu membaca ulang plan.
+33. **Event analitik tidak ditunggu**: insert dimulai lalu dijaga dengan `after()` dari `next/server` (respons tidak
+    menunggu). Pengecualian: `logout` ditunggu karena sesi dihapus sesudahnya.
+34. **`loading.tsx` per rute** (skeleton berbasis token) supaya navigasi langsung memberi umpan balik; BottomNav menyorot
+    tab yang ditekan seketika (`useLinkStatus`).
+35. **Umpan balik sentuh**: state `:active` (skala/latar) pada tombol, chip, kartu, tautan; tap-highlight bawaan dimatikan;
+    semua tombol submit menampilkan spinner (termasuk "Keluar" dan pilihan di dialog edit profil).

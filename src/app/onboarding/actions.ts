@@ -24,7 +24,7 @@ export async function simpanProfilTubuh(_prev: ActionState, fd: FormData): Promi
   const { supabase, user } = await requireOnboardingStep(1);
   const { error } = await supabase.from("profiles").update(parsed.data).eq("id", user.id);
   if (error) return { ok: false, error: PESAN_GALAT };
-  await logEvent(supabase, user.id, "onboarding_step_completed", { step: 1 });
+  logEvent(supabase, user.id, "onboarding_step_completed", { step: 1 });
   redirect("/onboarding/tujuan");
 }
 
@@ -34,7 +34,7 @@ export async function simpanTujuan(_prev: ActionState, fd: FormData): Promise<Ac
   const { supabase, user } = await requireOnboardingStep(2);
   const { error } = await supabase.from("profiles").update(parsed.data).eq("id", user.id);
   if (error) return { ok: false, error: PESAN_GALAT };
-  await logEvent(supabase, user.id, "onboarding_step_completed", { step: 2 });
+  logEvent(supabase, user.id, "onboarding_step_completed", { step: 2 });
   redirect("/onboarding/preferensi");
 }
 
@@ -63,7 +63,7 @@ export async function simpanPreferensi(_prev: ActionState, fd: FormData): Promis
   const profile = updated as ProfileRow;
   if (!isComplete(profile)) redirect("/onboarding/profil");
 
-  await logEvents(supabase, user.id, [
+  logEvents(supabase, user.id, [
     { nama: "onboarding_step_completed", meta: { step: 3 } },
     { nama: "onboarding_completed" },
   ]);

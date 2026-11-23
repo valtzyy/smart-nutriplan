@@ -22,7 +22,7 @@ export function SwapButton({ slot, enabled, slotLabel }: { slot: MealSlot; enabl
         disabled={pending}
         aria-label={`Ganti menu ${slotLabel.toLowerCase()}`}
         className={cn(
-          "inline-flex min-h-11 items-center gap-1.5 rounded-full border border-border bg-surface px-4 text-label-style text-primary-strong hover:bg-primary-soft disabled:opacity-50",
+          "inline-flex min-h-11 items-center gap-1.5 rounded-full border border-border bg-surface px-4 text-label-style text-primary-strong transition duration-100 select-none hover:bg-primary-soft active:scale-95 active:bg-primary-soft disabled:opacity-50",
         )}
       >
         {pending ? <Spinner /> : <RefreshCw size={16} aria-hidden />}

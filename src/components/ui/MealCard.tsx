@@ -20,7 +20,7 @@ interface MealCardProps {
 export function MealCard({ href, slotLabel, nama, porsi, kalori, fotoUrl, labelSelisih, swap }: MealCardProps) {
   return (
     <div className="rounded-lg border border-border bg-surface p-3">
-      <Link href={href} className="flex items-center gap-3">
+      <Link href={href} className="-m-1 flex items-center gap-3 rounded-md p-1 transition-colors active:bg-primary-soft/70">
         <span className="relative flex size-18 shrink-0 items-center justify-center overflow-hidden rounded-md bg-accent-soft text-text">
           {fotoUrl ? (
             <Image src={fotoUrl} alt={nama} fill sizes="72px" className="object-cover" unoptimized />

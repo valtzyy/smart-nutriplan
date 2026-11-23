@@ -6,7 +6,7 @@ import { Spinner } from "./Spinner";
 export type ButtonVariant = "primary" | "secondary" | "ghost";
 
 const base =
-  "inline-flex h-13 items-center justify-center gap-2 rounded-md px-6 text-body font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50";
+  "inline-flex h-13 items-center justify-center gap-2 rounded-md px-6 text-body font-semibold transition duration-100 select-none active:scale-[0.97] active:brightness-95 disabled:cursor-not-allowed disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50";
 
 const variants: Record<ButtonVariant, string> = {
   primary: "bg-primary-strong text-on-primary hover:bg-primary-strong/90",

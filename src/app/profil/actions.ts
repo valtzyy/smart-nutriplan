@@ -59,7 +59,7 @@ export async function selesaiEditProfil(_prev: ActionState, fd: FormData): Promi
       if (!profile || !isComplete(profile)) return { ok: false, error: PESAN_GALAT };
       await regeneratePlan(supabase, profile, getJakartaNow(new Date()).tanggal, "profile_update");
     }
-    await logEvent(supabase, user.id, "profile_updated", { regenerated: regenerate });
+    logEvent(supabase, user.id, "profile_updated", { regenerated: regenerate });
   } catch (e) {
     unstable_rethrow(e);
     console.error("[selesai edit profil]", e);

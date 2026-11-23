@@ -31,8 +31,9 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
 
   let userId: string | null = null;
   try {
-    const { data } = await supabase.auth.getUser();
-    userId = data.user?.id ?? null;
+    // Verifikasi JWT lokal (menyegarkan token bila perlu) — jauh lebih cepat daripada getUser().
+    const { data } = await supabase.auth.getClaims();
+    userId = data?.claims?.sub ?? null;
   } catch {
     // Supabase tidak terjangkau: biarkan halaman menangani (akan tampil galat).
     return response;

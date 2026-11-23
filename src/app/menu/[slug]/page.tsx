@@ -20,21 +20,24 @@ export default async function MenuDetailPage({ params, searchParams }: PageProps
   const { slug } = await params;
   const { item: itemParam } = await searchParams;
 
-  const { data: menuData } = await supabase
-    .from("menus")
-    .select("*, menu_allergens(allergen_id)")
-    .eq("slug", slug)
-    .maybeSingle();
+  const itemId = typeof itemParam === "string" && /^[0-9a-f-]{36}$/i.test(itemParam) ? itemParam : null;
+
+  // Semua query baca paralel (satu round-trip ke database).
+  const [{ data: menuData }, itemRes, allergens, avoid] = await Promise.all([
+    supabase.from("menus").select("*, menu_allergens(allergen_id)").eq("slug", slug).maybeSingle(),
+    itemId
+      ? supabase.from("meal_plan_items").select("*").eq("id", itemId).maybeSingle()
+      : Promise.resolve({ data: null }),
+    loadAllergens(supabase),
+    loadAvoidAllergenIds(supabase, user.id),
+  ]);
   if (!menuData) notFound();
   const { menu_allergens, ...menu } = menuData as MenuRow & { menu_allergens: { allergen_id: number }[] };
   const menuAllergenIds = new Set(menu_allergens.map((a) => a.allergen_id));
 
   // Porsi yang sudah diskalakan bila dibuka dari meal plan (RLS: hanya item milik sendiri).
-  let item: MealPlanItemRow | null = null;
-  if (typeof itemParam === "string" && /^[0-9a-f-]{36}$/i.test(itemParam)) {
-    const { data } = await supabase.from("meal_plan_items").select("*").eq("id", itemParam).maybeSingle();
-    if (data && (data as MealPlanItemRow).menu_id === menu.id) item = data as MealPlanItemRow;
-  }
+  const itemData = itemRes.data as MealPlanItemRow | null;
+  const item: MealPlanItemRow | null = itemData && itemData.menu_id === menu.id ? itemData : null;
   const multiplier = item ? Number(item.multiplier) : 1;
   const gizi = item
     ? { kalori: item.kalori, protein: item.protein, karbohidrat: item.karbohidrat, lemak: item.lemak }
@@ -45,12 +48,11 @@ export default async function MenuDetailPage({ params, searchParams }: PageProps
         lemak: Math.round(Number(menu.lemak)),
       };
 
-  const [allergens, avoid] = await Promise.all([loadAllergens(supabase), loadAvoidAllergenIds(supabase, user.id)]);
   const bebas = pilihAlergen(allergens, avoid)
     .filter((a) => !menuAllergenIds.has(a.id))
     .slice(0, 3);
 
-  await logEvent(supabase, user.id, "recipe_viewed", { slug: menu.slug });
+  logEvent(supabase, user.id, "recipe_viewed", { slug: menu.slug });
 
   const harga = menu.estimasi_harga != null ? Math.round((menu.estimasi_harga * multiplier) / 100) * 100 : null;
 

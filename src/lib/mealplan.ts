@@ -79,6 +79,12 @@ export async function loadRecentMenuIds(supabase: SupabaseClient, userId: string
   return [...ids];
 }
 
+function urutkan(items: MealPlanItemRow[]): MealPlanItemRow[] {
+  return items
+    .map((i) => ({ ...i, multiplier: Number(i.multiplier) }))
+    .sort((a, b) => MEAL_SLOTS.indexOf(a.slot) - MEAL_SLOTS.indexOf(b.slot));
+}
+
 export async function loadPlan(supabase: SupabaseClient, userId: string, tanggal: string): Promise<PlanWithItems | null> {
   const { data, error } = await supabase
     .from("meal_plans")
@@ -89,10 +95,29 @@ export async function loadPlan(supabase: SupabaseClient, userId: string, tanggal
   if (error) throw new Error(error.message);
   if (!data) return null;
   const { meal_plan_items, ...plan } = data as MealPlanRow & { meal_plan_items: MealPlanItemRow[] };
-  const items = meal_plan_items
-    .map((i) => ({ ...i, multiplier: Number(i.multiplier) }))
-    .sort((a, b) => MEAL_SLOTS.indexOf(a.slot) - MEAL_SLOTS.indexOf(b.slot));
-  return { plan, items };
+  return { plan, items: urutkan(meal_plan_items) };
+}
+
+/** Data pendukung generator: katalog menu, alergen yang dihindari, riwayat 3 hari. */
+export interface PlanContext {
+  catalog: MenuCatalog;
+  avoid: number[];
+  recent: string[];
+}
+
+/** Meal plan hari itu + konteks generator, semua diambil paralel (satu round-trip). */
+export async function loadPlanAndContext(
+  supabase: SupabaseClient,
+  userId: string,
+  tanggal: string,
+): Promise<{ existing: PlanWithItems | null; ctx: PlanContext }> {
+  const [existing, catalog, avoid, recent] = await Promise.all([
+    loadPlan(supabase, userId, tanggal),
+    loadMenuCatalog(supabase),
+    loadAvoidAllergenIds(supabase, userId),
+    loadRecentMenuIds(supabase, userId, tanggal),
+  ]);
+  return { existing, ctx: { catalog, avoid, recent } };
 }
 
 function targetDari(profile: CompleteProfile): number {
@@ -135,11 +160,20 @@ function keBaris(planId: string, it: PlanSlotResult) {
   };
 }
 
-async function simpanItems(supabase: SupabaseClient, planId: string, items: PlanSlotResult[]) {
-  const { error } = await supabase
+async function simpanItems(
+  supabase: SupabaseClient,
+  planId: string,
+  items: PlanSlotResult[],
+): Promise<MealPlanItemRow[]> {
+  const { data, error } = await supabase
     .from("meal_plan_items")
-    .upsert(items.map((it) => keBaris(planId, it)), { onConflict: "meal_plan_id,slot" });
+    .upsert(
+      items.map((it) => keBaris(planId, it)),
+      { onConflict: "meal_plan_id,slot" },
+    )
+    .select("*");
   if (error) throw new Error(error.message);
+  return urutkan((data ?? []) as MealPlanItemRow[]);
 }
 
 function eventGenerasi(source: PlanSource, items: PlanSlotResult[]) {
@@ -154,24 +188,25 @@ function eventGenerasi(source: PlanSource, items: PlanSlotResult[]) {
  * Pastikan meal plan `tanggal` ada (dibuat sekali per hari). Aman terhadap request bersamaan:
  * insert `on conflict do nothing`, lalu baca yang sudah ada. Item dibuat deterministik dari seed,
  * jadi dua request yang sama-sama melengkapi item menghasilkan baris identik.
+ * `preloaded` (dari loadPlanAndContext) menghindari query baca ulang.
  */
 export async function ensurePlan(
   supabase: SupabaseClient,
   profile: CompleteProfile,
   tanggal: string,
   source: PlanSource,
+  preloaded?: { existing: PlanWithItems | null; ctx: PlanContext },
 ): Promise<PlanWithItems> {
-  const existing = await loadPlan(supabase, profile.id, tanggal);
+  const { existing, ctx } = preloaded ?? (await loadPlanAndContext(supabase, profile.id, tanggal));
   if (existing && existing.items.length === MEAL_SLOTS.length) return existing;
 
-  const target = existing?.plan.target_kalori ?? targetDari(profile);
   let plan = existing?.plan ?? null;
   let created = false;
   if (!plan) {
     const { data, error } = await supabase
       .from("meal_plans")
       .upsert(
-        { user_id: profile.id, tanggal, target_kalori: target },
+        { user_id: profile.id, tanggal, target_kalori: targetDari(profile) },
         { onConflict: "user_id,tanggal", ignoreDuplicates: true },
       )
       .select();
@@ -186,25 +221,17 @@ export async function ensurePlan(
     }
   }
 
-  const [catalog, avoid, recent] = await Promise.all([
-    loadMenuCatalog(supabase),
-    loadAvoidAllergenIds(supabase, profile.id),
-    loadRecentMenuIds(supabase, profile.id, tanggal),
-  ]);
   const result = generateMealPlan({
     target: plan.target_kalori,
     tujuan: profile.tujuan,
-    avoidAllergenIds: avoid,
-    menus: catalog.generatorMenus,
-    recentMenuIds: recent,
+    avoidAllergenIds: ctx.avoid,
+    menus: ctx.catalog.generatorMenus,
+    recentMenuIds: ctx.recent,
     seed: `${profile.id}:${tanggal}:${plan.regenerate_count}`,
   });
-  await simpanItems(supabase, plan.id, result.items);
-  if (created) await logEvents(supabase, profile.id, eventGenerasi(source, result.items));
-
-  const final = await loadPlan(supabase, profile.id, tanggal);
-  if (!final) throw new Error("Meal plan tidak ditemukan.");
-  return final;
+  const items = await simpanItems(supabase, plan.id, result.items);
+  if (created) void logEvents(supabase, profile.id, eventGenerasi(source, result.items));
+  return { plan, items };
 }
 
 export class RegenerateLimitError extends Error {
@@ -223,12 +250,13 @@ export async function regeneratePlan(
   tanggal: string,
   source: "regenerate" | "profile_update",
 ): Promise<void> {
-  const current = await loadPlan(supabase, profile.id, tanggal);
-  if (!current) {
-    await ensurePlan(supabase, profile, tanggal, source === "profile_update" ? "profile_update" : "auto");
+  const loaded = await loadPlanAndContext(supabase, profile.id, tanggal);
+  if (!loaded.existing) {
+    await ensurePlan(supabase, profile, tanggal, source === "profile_update" ? "profile_update" : "auto", loaded);
     return;
   }
-  const { plan, items } = current;
+  const { plan, items } = loaded.existing;
+  const { ctx } = loaded;
   if (source === "regenerate" && plan.regenerate_count >= MAKS_BUAT_ULANG) throw new RegenerateLimitError();
 
   const nextCount = source === "regenerate" ? plan.regenerate_count + 1 : plan.regenerate_count;
@@ -242,21 +270,14 @@ export async function regeneratePlan(
     .eq("regenerate_count", plan.regenerate_count)
     .select("id");
   if (claimErr) throw new Error(claimErr.message);
-  if (!claimed || claimed.length === 0) {
-    if (source === "regenerate") throw new RegenerateLimitError();
-  }
+  if ((!claimed || claimed.length === 0) && source === "regenerate") throw new RegenerateLimitError();
 
-  const [catalog, avoid, recent] = await Promise.all([
-    loadMenuCatalog(supabase),
-    loadAvoidAllergenIds(supabase, profile.id),
-    loadRecentMenuIds(supabase, profile.id, tanggal),
-  ]);
   const result = generateMealPlan({
     target,
     tujuan: profile.tujuan,
-    avoidAllergenIds: avoid,
-    menus: catalog.generatorMenus,
-    recentMenuIds: recent,
+    avoidAllergenIds: ctx.avoid,
+    menus: ctx.catalog.generatorMenus,
+    recentMenuIds: ctx.recent,
     currentPlanMenuIds:
       source === "regenerate" ? items.map((i) => i.menu_id).filter((x): x is string => x != null) : undefined,
     seed:
@@ -265,7 +286,7 @@ export async function regeneratePlan(
         : `${profile.id}:${tanggal}:${nextCount}:${Date.parse(profile.updated_at) || 0}`,
   });
   await simpanItems(supabase, plan.id, result.items);
-  await logEvents(supabase, profile.id, eventGenerasi(source, result.items));
+  void logEvents(supabase, profile.id, eventGenerasi(source, result.items));
 }
 
 /** Ganti satu slot ke kandidat berikutnya. Mengembalikan `false` bila tidak ada menu lain. */
@@ -275,16 +296,11 @@ export async function swapPlanSlot(
   tanggal: string,
   slot: MealSlot,
 ): Promise<boolean> {
-  const current = await loadPlan(supabase, profile.id, tanggal);
+  const { existing: current, ctx } = await loadPlanAndContext(supabase, profile.id, tanggal);
   if (!current) throw new Error("Meal plan hari ini belum ada.");
   const item = current.items.find((i) => i.slot === slot);
   if (!item) throw new Error("Slot tidak ditemukan.");
 
-  const [catalog, avoid, recent] = await Promise.all([
-    loadMenuCatalog(supabase),
-    loadAvoidAllergenIds(supabase, profile.id),
-    loadRecentMenuIds(supabase, profile.id, tanggal),
-  ]);
   const next = swapSlot({
     slot,
     currentMenuId: item.menu_id,
@@ -293,21 +309,21 @@ export async function swapPlanSlot(
       .map((i) => i.menu_id as string),
     target: current.plan.target_kalori,
     tujuan: profile.tujuan,
-    avoidAllergenIds: avoid,
-    menus: catalog.generatorMenus,
-    recentMenuIds: recent,
+    avoidAllergenIds: ctx.avoid,
+    menus: ctx.catalog.generatorMenus,
+    recentMenuIds: ctx.recent,
     seed: `${profile.id}:${tanggal}`,
   });
   if (!next) return false;
 
   await simpanItems(supabase, current.plan.id, [next]);
-  await logEvents(supabase, profile.id, [
+  void logEvents(supabase, profile.id, [
     {
       nama: "menu_swapped",
       meta: {
         slot,
-        from: item.menu_id ? (catalog.byId.get(item.menu_id)?.slug ?? item.menu_id) : null,
-        to: catalog.byId.get(next.menuId)?.slug ?? next.menuId,
+        from: item.menu_id ? (ctx.catalog.byId.get(item.menu_id)?.slug ?? item.menu_id) : null,
+        to: ctx.catalog.byId.get(next.menuId)?.slug ?? next.menuId,
       },
     },
   ]);
@@ -318,9 +334,7 @@ export async function swapPlanSlot(
 export function swappableSlots(
   plan: PlanWithItems,
   profile: CompleteProfile,
-  catalog: MenuCatalog,
-  avoid: number[],
-  recent: string[],
+  ctx: PlanContext,
   tanggal: string,
 ): Record<MealSlot, boolean> {
   const out = {} as Record<MealSlot, boolean>;
@@ -332,9 +346,9 @@ export function swappableSlots(
         otherSlotMenuIds: plan.items.filter((o) => o.slot !== it.slot && o.menu_id).map((o) => o.menu_id as string),
         target: plan.plan.target_kalori,
         tujuan: profile.tujuan,
-        avoidAllergenIds: avoid,
-        menus: catalog.generatorMenus,
-        recentMenuIds: recent,
+        avoidAllergenIds: ctx.avoid,
+        menus: ctx.catalog.generatorMenus,
+        recentMenuIds: ctx.recent,
         seed: `${profile.id}:${tanggal}`,
       }) !== null;
   }

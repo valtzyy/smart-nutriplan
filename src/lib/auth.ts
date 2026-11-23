@@ -1,5 +1,5 @@
 import "server-only";
-import type { SupabaseClient, User } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
 import { cache } from "react";
@@ -8,9 +8,14 @@ import { getSupabaseEnv } from "./supabase/env";
 import { createClient } from "./supabase/server";
 import type { CompleteProfile, ProfileRow } from "./types";
 
+export interface SessionUser {
+  id: string;
+  email: string | undefined;
+}
+
 export interface Session {
   supabase: SupabaseClient;
-  user: User;
+  user: SessionUser;
   profile: ProfileRow;
 }
 
@@ -20,15 +25,18 @@ export const getSession = cache(async (): Promise<Session | null> => {
   await connection();
   if (!getSupabaseEnv()) return null;
   const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
-  if (!data.user) return null;
-  const { data: profile, error } = await supabase.from("profiles").select("*").eq("id", data.user.id).maybeSingle();
+  // getClaims memverifikasi JWT secara lokal (kunci ES256 dari JWKS, di-cache) — tanpa round-trip ke Auth server.
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const claims = claimsData?.claims;
+  if (!claims?.sub) return null;
+  const user: SessionUser = { id: claims.sub, email: claims.email };
+  const { data: profile, error } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
   if (error) throw new Error(error.message);
   const p: ProfileRow =
     (profile as ProfileRow | null) ??
     ({
-      id: data.user.id,
-      nama: (data.user.user_metadata?.nama as string) ?? "",
+      id: user.id,
+      nama: (claims.user_metadata?.nama as string) ?? "",
       role: "user",
       usia: null,
       jenis_kelamin: null,
@@ -44,7 +52,7 @@ export const getSession = cache(async (): Promise<Session | null> => {
   // numeric Postgres dikembalikan sebagai number oleh PostgREST, tapi jaga-jaga string.
   if (p.berat_badan != null) p.berat_badan = Number(p.berat_badan);
   if (p.tinggi_badan != null) p.tinggi_badan = Number(p.tinggi_badan);
-  return { supabase, user: data.user, profile: p };
+  return { supabase, user, profile: p };
 });
 
 /** Halaman publik (/, /daftar, /masuk): alihkan bila sudah login. */

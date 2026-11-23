@@ -23,6 +23,7 @@ export function EditProfileForm({ allergens, initial }: Props) {
   const [clientErrors, setClientErrors] = useState<Record<string, string> | null>(null);
   const [state, action, pending] = useActionState(simpanEditProfil, null);
   const [doneState, doneAction, donePending] = useActionState(selesaiEditProfil, null);
+  const [pilihan, setPilihan] = useState<"1" | "0" | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const errors = clientErrors ?? state?.fieldErrors ?? {};
 
@@ -76,10 +77,25 @@ export function EditProfileForm({ allergens, initial }: Props) {
             Profilmu sudah diperbarui. Perbarui meal plan hari ini juga?
           </h2>
           <p className="text-small text-text-muted">Kalau pilih &quot;Nanti saja&quot;, perubahan berlaku mulai besok.</p>
-          <Button type="submit" name="regenerate" value="1" loading={donePending}>
+          <Button
+            type="submit"
+            name="regenerate"
+            value="1"
+            loading={donePending && pilihan === "1"}
+            disabled={donePending}
+            onClick={() => setPilihan("1")}
+          >
             Ya, perbarui
           </Button>
-          <Button type="submit" name="regenerate" value="0" variant="ghost" disabled={donePending}>
+          <Button
+            type="submit"
+            name="regenerate"
+            value="0"
+            variant="ghost"
+            loading={donePending && pilihan === "0"}
+            disabled={donePending}
+            onClick={() => setPilihan("0")}
+          >
             Nanti saja
           </Button>
           {doneState?.error && <p className="text-small text-danger-text">{doneState.error}</p>}

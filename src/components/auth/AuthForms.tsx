@@ -51,7 +51,7 @@ export function DaftarForm() {
       </Button>
       <p className="text-center text-body text-text-muted">
         Sudah punya akun?{" "}
-        <Link href="/masuk" className="font-semibold text-primary-strong">
+        <Link href="/masuk" className="font-semibold text-primary-strong active:opacity-60">
           Masuk
         </Link>
       </p>
@@ -77,7 +77,7 @@ export function MasukForm({ next }: { next?: string }) {
           error={errors.password}
           required
         />
-        <Link href="/lupa-sandi" className="self-end py-2 text-small font-semibold text-primary-strong">
+        <Link href="/lupa-sandi" className="self-end py-2 text-small font-semibold text-primary-strong active:opacity-60">
           Lupa kata sandi?
         </Link>
       </div>
@@ -91,7 +91,7 @@ export function MasukForm({ next }: { next?: string }) {
       </Button>
       <p className="text-center text-body text-text-muted">
         Belum punya akun?{" "}
-        <Link href="/daftar" className="font-semibold text-primary-strong">
+        <Link href="/daftar" className="font-semibold text-primary-strong active:opacity-60">
           Daftar
         </Link>
       </p>

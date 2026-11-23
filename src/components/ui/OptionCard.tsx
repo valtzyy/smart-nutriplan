@@ -18,7 +18,7 @@ export function OptionCard({ title, description, selected, onSelect }: OptionCar
       aria-label={`${title}: ${description}`}
       onClick={onSelect}
       className={cn(
-        "flex w-full items-center gap-3 rounded-lg p-4 text-left transition-colors",
+        "flex w-full items-center gap-3 rounded-lg p-4 text-left transition duration-100 select-none active:scale-[0.98]",
         selected ? "border-2 border-primary-strong bg-primary-soft" : "border border-border bg-surface hover:border-primary",
       )}
     >

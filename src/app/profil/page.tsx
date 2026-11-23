@@ -4,7 +4,8 @@ import { keluarAction } from "@/app/(auth)/actions";
 import { HealthDataInfo } from "@/components/profile/HealthDataInfo";
 import { Avatar } from "@/components/ui/Avatar";
 import { BottomNav, BottomNavSpacer } from "@/components/ui/BottomNav";
-import { Button, ButtonLink } from "@/components/ui/Button";
+import { ButtonLink } from "@/components/ui/Button";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { loadAllergens, pilihAlergen } from "@/lib/allergens";
 import { requireOnboarded } from "@/lib/auth";
 import { AKTIVITAS_LABEL, formatAngka, GENDER_LABEL, TUJUAN_LABEL } from "@/lib/labels";
@@ -69,10 +70,10 @@ export default async function ProfilPage() {
             Edit profil
           </ButtonLink>
           <form action={keluarAction}>
-            <Button type="submit" variant="secondary">
+            <SubmitButton variant="secondary">
               <LogOut size={18} aria-hidden />
               Keluar
-            </Button>
+            </SubmitButton>
           </form>
           {p.role === "admin" && (
             <Link href="/admin" className="mx-auto min-h-11 py-3 text-small font-semibold text-primary-strong">

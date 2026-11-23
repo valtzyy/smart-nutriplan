@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
 
   if (url.searchParams.get("ev") === "sign_up" || type === "signup") {
     const { data } = await supabase.auth.getUser();
-    if (data.user) await logEvent(supabase, data.user.id, "sign_up");
+    if (data.user) logEvent(supabase, data.user.id, "sign_up");
   }
   const dest = type === "recovery" ? "/reset-sandi" : next;
   return NextResponse.redirect(`${origin}${dest}`);
