@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  anggaranSchema,
   daftarSchema,
   fieldErrors,
+  normalisasiKodeRujukan,
   PESAN,
   profilTubuhSchema,
   resetSandiSchema,
@@ -13,15 +15,30 @@ import type { ProfileRow } from "./types";
 
 describe("validasi form (PRD 5.5)", () => {
   it("daftar: pesan error sesuai PRD", () => {
-    const r = daftarSchema.safeParse({ nama: "A", email: "bukan-email", password: "123" });
+    const r = daftarSchema.safeParse({ nama: "A", email: "bukan-email", password: "123", setuju: false });
     expect(r.success).toBe(false);
     if (!r.success) {
-      expect(fieldErrors(r.error)).toEqual({ nama: PESAN.nama, email: PESAN.email, password: PESAN.sandi });
+      expect(fieldErrors(r.error)).toEqual({
+        nama: PESAN.nama,
+        email: PESAN.email,
+        password: PESAN.sandi,
+        setuju: PESAN.setuju,
+      });
     }
   });
 
   it("daftar valid", () => {
-    expect(daftarSchema.safeParse({ nama: "Annisa", email: "annisa@contoh.com", password: "rahasia123" }).success).toBe(true);
+    expect(
+      daftarSchema.safeParse({ nama: "Annisa", email: "annisa@contoh.com", password: "rahasia123", setuju: true })
+        .success,
+    ).toBe(true);
+  });
+
+  it("kode rujukan dinormalkan & disaring", () => {
+    expect(normalisasiKodeRujukan(" ab12cd34 ")).toBe("AB12CD34");
+    expect(normalisasiKodeRujukan("x")).toBeNull();
+    expect(normalisasiKodeRujukan("<script>")).toBeNull();
+    expect(normalisasiKodeRujukan(["AB12"])).toBeNull();
   });
 
   it("profil tubuh Annisa valid", () => {
@@ -89,6 +106,25 @@ describe("validasi form (PRD 5.5)", () => {
     const r = resetSandiSchema.safeParse({ password: "rahasia123", confirm: "rahasia124" });
     expect(r.success).toBe(false);
     if (!r.success) expect(fieldErrors(r.error).confirm).toBe(PESAN.sandiBeda);
+  });
+});
+
+describe("anggaran harian", () => {
+  it.each([
+    ["", null],
+    ["35000", 35000],
+    ["35.000", 35000],
+    ["Rp 25.000", 25000],
+    ["0", 0],
+  ])("%s → %s", (raw, hasil) => {
+    const r = anggaranSchema.safeParse(raw);
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data).toBe(hasil);
+  });
+  it.each(["-1", "abc", "1000001", "12,5"])("%s ditolak", (raw) => {
+    const r = anggaranSchema.safeParse(raw);
+    expect(r.success).toBe(false);
+    if (!r.success) expect(r.error.issues[0].message).toBe(PESAN.anggaran);
   });
 });
 

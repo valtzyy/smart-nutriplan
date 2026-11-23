@@ -23,6 +23,7 @@ export async function simpanEditProfil(_prev: ActionState, fd: FormData): Promis
     aktivitas_fisik: s(fd, "aktivitas_fisik"),
     tujuan: s(fd, "tujuan"),
     allergen_ids: fd.getAll("allergen_ids"),
+    anggaran_harian: s(fd, "anggaran_harian"),
   });
   if (!parsed.success) return { ok: false, fieldErrors: fieldErrors(parsed.error) };
   try {

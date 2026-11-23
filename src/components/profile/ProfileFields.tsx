@@ -124,6 +124,31 @@ export function TujuanFields({
   );
 }
 
+export function AnggaranField({
+  defaultValue,
+  error,
+}: {
+  defaultValue?: number | null;
+  error?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <Input
+        label="Anggaran makan per hari (opsional)"
+        name="anggaran_harian"
+        inputMode="numeric"
+        placeholder="Mis. 35000"
+        suffix="Rp/hari"
+        defaultValue={defaultValue ?? ""}
+        error={error}
+      />
+      <p className="text-caption text-text-muted">
+        Dipakai untuk membandingkan perkiraan biaya bahan meal plan-mu. Kosongkan bila tidak perlu.
+      </p>
+    </div>
+  );
+}
+
 export function AllergenFields({
   allergens,
   value,

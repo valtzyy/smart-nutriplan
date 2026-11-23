@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ACTIVITY_LEVELS, DIET_GOALS, GENDERS, MEAL_SLOTS } from "./nutrition/constants";
+import { BERSEDIA_BAYAR } from "./types";
 
 export const PESAN = {
   nama: "Nama panggilan 2–30 karakter, ya.",
@@ -14,6 +15,8 @@ export const PESAN = {
   tb: "Tinggi badan antara 120–230 cm.",
   aktivitas: "Pilih tingkat aktivitasmu.",
   tujuan: "Pilih satu tujuan.",
+  setuju: "Centang persetujuan dulu, ya.",
+  anggaran: "Anggaran antara Rp0–Rp1.000.000, boleh dikosongkan.",
 } as const;
 
 /** Ubah input form (string) ke angka; kosong → NaN supaya gagal validasi. */
@@ -28,7 +31,19 @@ export const namaSchema = z.string().trim().min(2, PESAN.nama).max(30, PESAN.nam
 export const emailSchema = z.string().trim().pipe(z.email(PESAN.email));
 export const sandiSchema = z.string().min(8, PESAN.sandi);
 
-export const daftarSchema = z.object({ nama: namaSchema, email: emailSchema, password: sandiSchema });
+export const daftarSchema = z.object({
+  nama: namaSchema,
+  email: emailSchema,
+  password: sandiSchema,
+  setuju: z.boolean().refine((v) => v, { message: PESAN.setuju }),
+});
+
+/** Kode rujukan dari URL (`?ref=`): 4–16 huruf/angka, dinormalkan ke huruf besar. */
+export function normalisasiKodeRujukan(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const v = raw.trim().toUpperCase();
+  return /^[A-Z0-9]{4,16}$/.test(v) ? v : null;
+}
 export const masukSchema = z.object({ email: emailSchema, password: z.string().min(1, PESAN.sandi) });
 export const lupaSandiSchema = z.object({ email: emailSchema });
 export const resetSandiSchema = z
@@ -62,10 +77,29 @@ export const tujuanSchema = z.object({ tujuan: z.enum(DIET_GOALS, { error: PESAN
 
 export const allergenIdsSchema = z.array(z.coerce.number().int().positive()).max(50);
 
+/** Anggaran makan per hari (opsional): "" → null; "25.000" → 25000; 0–1.000.000. */
+export const anggaranSchema = z.preprocess(
+  (v) => {
+    if (v == null) return null;
+    const s = String(v).replace(/[.\s]/g, "").replace(/^rp/i, "");
+    return s === "" ? null : Number(s);
+  },
+  z
+    .number({ error: PESAN.anggaran })
+    .refine((n) => Number.isInteger(n) && n >= 0 && n <= 1_000_000, { message: PESAN.anggaran })
+    .nullable(),
+);
+
+export const preferensiSchema = z.object({
+  allergen_ids: allergenIdsSchema,
+  anggaran_harian: anggaranSchema,
+});
+
 export const editProfilSchema = profilTubuhSchema.extend({
   nama: namaSchema,
   tujuan: z.enum(DIET_GOALS, { error: PESAN.tujuan }),
   allergen_ids: allergenIdsSchema,
+  anggaran_harian: anggaranSchema,
 });
 
 export const slotSchema = z.enum(MEAL_SLOTS);
@@ -114,3 +148,25 @@ export const menuFormSchema = z.object({
 
 export type MenuFormInput = z.input<typeof menuFormSchema>;
 export type MenuFormValues = z.output<typeof menuFormSchema>;
+
+const teksOpsional = z
+  .string()
+  .trim()
+  .max(1000, "Maksimal 1.000 karakter, ya.")
+  .transform((s) => (s === "" ? null : s));
+
+/** Formulir masukan closed beta + NPS (KERTAS KERJA minggu 8 & 11). */
+export const masukanSchema = z.object({
+  // Kosong → NaN (bukan 0) supaya wajib dipilih.
+  nps: z.preprocess(
+    (v) => (v === "" || v == null ? Number.NaN : Number(v)),
+    z
+      .number({ error: "Pilih skor 0–10, ya." })
+      .refine((n) => Number.isInteger(n) && n >= 0 && n <= 10, { message: "Pilih skor 0–10, ya." }),
+  ),
+  membingungkan: teksOpsional,
+  disukai: teksOpsional,
+  berhenti: teksOpsional,
+  alasan_rekomendasi: teksOpsional,
+  bersedia_bayar: z.union([z.enum(BERSEDIA_BAYAR), z.literal("").transform(() => null)]),
+});

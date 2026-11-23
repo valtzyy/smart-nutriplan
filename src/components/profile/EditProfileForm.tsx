@@ -2,7 +2,13 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { selesaiEditProfil, simpanEditProfil } from "@/app/profil/actions";
-import { AllergenFields, TubuhFields, TujuanFields, type TubuhValues } from "@/components/profile/ProfileFields";
+import {
+  AllergenFields,
+  AnggaranField,
+  TubuhFields,
+  TujuanFields,
+  type TubuhValues,
+} from "@/components/profile/ProfileFields";
 import { Button } from "@/components/ui/Button";
 import { Disclaimer } from "@/components/ui/Disclaimer";
 import { Input } from "@/components/ui/Input";
@@ -12,7 +18,7 @@ import { editProfilSchema, fieldErrors, usiaDiLuarRentang } from "@/lib/validati
 
 interface Props {
   allergens: AllergenRow[];
-  initial: TubuhValues & { nama: string; tujuan: string; allergen_ids: number[] };
+  initial: TubuhValues & { nama: string; tujuan: string; allergen_ids: number[]; anggaran_harian: number | null };
 }
 
 export function EditProfileForm({ allergens, initial }: Props) {
@@ -37,7 +43,8 @@ export function EditProfileForm({ allergens, initial }: Props) {
         action={action}
         noValidate
         onSubmit={(e) => {
-          const r = editProfilSchema.safeParse({ nama, ...tubuh, tujuan, allergen_ids: ids });
+          const anggaran = new FormData(e.currentTarget).get("anggaran_harian");
+          const r = editProfilSchema.safeParse({ nama, ...tubuh, tujuan, allergen_ids: ids, anggaran_harian: anggaran });
           if (!r.success) {
             e.preventDefault();
             setClientErrors(fieldErrors(r.error));
@@ -59,6 +66,7 @@ export function EditProfileForm({ allergens, initial }: Props) {
           <TujuanFields value={tujuan} onChange={setTujuan} error={errors.tujuan} />
         </div>
         <AllergenFields allergens={allergens} value={ids} onChange={setIds} />
+        <AnggaranField defaultValue={initial.anggaran_harian} error={errors.anggaran_harian} />
         <Disclaimer />
         <Button type="submit" loading={pending} disabled={usiaDiLuarRentang(tubuh.usia)}>
           Simpan

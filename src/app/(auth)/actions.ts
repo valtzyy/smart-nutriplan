@@ -8,7 +8,14 @@ import { getSiteUrl } from "@/lib/site-url";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState, ProfileRow } from "@/lib/types";
-import { daftarSchema, fieldErrors, lupaSandiSchema, masukSchema, resetSandiSchema } from "@/lib/validation";
+import {
+  daftarSchema,
+  fieldErrors,
+  lupaSandiSchema,
+  masukSchema,
+  normalisasiKodeRujukan,
+  resetSandiSchema,
+} from "@/lib/validation";
 
 function str(fd: FormData, key: string): string {
   const v = fd.get(key);
@@ -20,7 +27,12 @@ function belumSiap(): ActionState {
 }
 
 export async function daftarAction(_prev: ActionState, fd: FormData): Promise<ActionState> {
-  const parsed = daftarSchema.safeParse({ nama: str(fd, "nama"), email: str(fd, "email"), password: str(fd, "password") });
+  const parsed = daftarSchema.safeParse({
+    nama: str(fd, "nama"),
+    email: str(fd, "email"),
+    password: str(fd, "password"),
+    setuju: str(fd, "setuju") === "on",
+  });
   if (!parsed.success) return { ok: false, fieldErrors: fieldErrors(parsed.error) };
   if (!getSupabaseEnv()) return belumSiap();
 
@@ -31,7 +43,8 @@ export async function daftarAction(_prev: ActionState, fd: FormData): Promise<Ac
     email,
     password,
     options: {
-      data: { nama },
+      // Dibaca trigger handle_new_user (migrasi 0003): perujuk & waktu persetujuan ketentuan.
+      data: { nama, ref: normalisasiKodeRujukan(str(fd, "ref")) ?? undefined, setuju_ketentuan: true },
       emailRedirectTo: `${site}/auth/callback?next=/onboarding/profil&ev=sign_up`,
     },
   });

@@ -116,3 +116,24 @@ Lakukan di HP (lebar 360–430 px) atau DevTools mode mobile. Centang tiap butir
         `profile_updated`, `logout`, `login`.
 
 Catat hasil (✅/❌ + catatan) langsung di daftar ini.
+
+## Penyesuaian KERTAS KERJA (Tentang/Privasi, Masukan+NPS, Rujukan+AARRR, Anggaran)
+
+Otomatis: `npm test` → **96 tes lulus** (tambahan: AARRR/NPS, perkiraan biaya & status anggaran, validasi anggaran,
+persetujuan ketentuan, normalisasi kode rujukan). Lint bersih, build tanpa env sukses.
+
+Migrasi `0003_feedback_referral.sql` diuji di Postgres 18 lokal (stub skema `auth`): backfill kode rujukan, pendaftar
+dengan `ref` (huruf kecil pun cocok) tercatat `dirujuk_oleh`, kode salah → null, persetujuan tersimpan, pengguna tidak
+bisa mengubah kode/perujuk sendiri, RLS feedback (insert milik sendiri; baca milik sendiri/admin), NPS di luar 0–10
+ditolak, migrasi bisa dijalankan ulang. ✅
+
+Lokal (`npm run dev`, 390 px, Supabase proyek ini — **0003 belum dijalankan di Supabase**):
+- `/tentang`, `/privasi` tampil; tautan di Welcome & Profil ✅
+- Edit profil: anggaran "30.000" tersimpan → Beranda "±Rp37.000 … Sekitar Rp7.000 di atas anggaranmu (Rp30.000/hari)";
+  Profil "Anggaran makan/hari Rp30.000" ✅
+- Masukan: kirim tanpa skor → "Pilih skor 0–10, ya." (juga tanpa JS); kirim skor 9 → toast "Ada kendala…" karena tabel
+  `feedback` belum ada (PGRST205) — perilaku yang diharapkan sebelum migrasi ✅
+- "Ajak teman" tersembunyi sampai kolom `kode_rujukan` ada ✅
+
+Perlu diuji setelah 0003 dijalankan: kirim masukan → "Terima kasih"; Profil menampilkan "Ajak teman"; daftar lewat
+`/?ref=KODE` → admin AARRR "Datang lewat rujukan" bertambah; `/admin/masukan` menampilkan jawaban + skor NPS.

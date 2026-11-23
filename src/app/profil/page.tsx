@@ -1,6 +1,7 @@
-import { LogOut, Pencil } from "lucide-react";
+import { ChevronRight, Info, LogOut, MessageSquareHeart, Pencil, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { keluarAction } from "@/app/(auth)/actions";
+import { AjakTeman } from "@/components/profile/AjakTeman";
 import { HealthDataInfo } from "@/components/profile/HealthDataInfo";
 import { Avatar } from "@/components/ui/Avatar";
 import { BottomNav, BottomNavSpacer } from "@/components/ui/BottomNav";
@@ -8,15 +9,27 @@ import { ButtonLink } from "@/components/ui/Button";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { loadAllergens, pilihAlergen } from "@/lib/allergens";
 import { requireOnboarded } from "@/lib/auth";
+import { formatRupiah } from "@/lib/biaya";
 import { AKTIVITAS_LABEL, formatAngka, GENDER_LABEL, TUJUAN_LABEL } from "@/lib/labels";
 import { loadAvoidAllergenIds } from "@/lib/mealplan";
 import { hitungTargetKalori } from "@/lib/nutrition/calories";
+import { getSiteUrl } from "@/lib/site-url";
 
 export const metadata = { title: "Profil — Smart NutriPlan" };
 
+const TAUTAN = [
+  { href: "/masukan", label: "Beri masukan", Icon: MessageSquareHeart },
+  { href: "/tentang", label: "Tentang Kami & kontak", Icon: Info },
+  { href: "/privasi", label: "Ketentuan & Privasi", Icon: ShieldCheck },
+];
+
 export default async function ProfilPage() {
   const { supabase, user, profile: p } = await requireOnboarded();
-  const [allergens, ids] = await Promise.all([loadAllergens(supabase), loadAvoidAllergenIds(supabase, p.id)]);
+  const [allergens, ids, site] = await Promise.all([
+    loadAllergens(supabase),
+    loadAvoidAllergenIds(supabase, p.id),
+    getSiteUrl(),
+  ]);
   const alergen = pilihAlergen(allergens, ids);
   const kalori = hitungTargetKalori({
     jenisKelamin: p.jenis_kelamin,
@@ -36,6 +49,10 @@ export default async function ProfilPage() {
     { label: "Tujuan", value: TUJUAN_LABEL[p.tujuan] },
     { label: "Target kalori", value: `${formatAngka(kalori.target)} kkal` },
     { label: "Dihindari", value: alergen.length ? alergen.map((a) => a.nama).join(", ") : "Tidak ada" },
+    {
+      label: "Anggaran makan/hari",
+      value: p.anggaran_harian != null ? formatRupiah(p.anggaran_harian) : "Belum diatur",
+    },
   ];
 
   return (
@@ -64,11 +81,28 @@ export default async function ProfilPage() {
           </p>
         )}
 
+        <ButtonLink href="/profil/edit">
+          <Pencil size={18} aria-hidden />
+          Edit profil
+        </ButtonLink>
+
+        {p.kode_rujukan && <AjakTeman url={`${site}/?ref=${p.kode_rujukan}`} kode={p.kode_rujukan} />}
+
+        <nav aria-label="Lainnya" className="divide-y divide-border rounded-lg border border-border bg-surface">
+          {TAUTAN.map(({ href, label, Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className="flex min-h-13 items-center gap-3 px-4 text-body text-text transition-colors active:bg-primary-soft/70"
+            >
+              <Icon size={20} aria-hidden className="text-primary-strong" />
+              <span className="flex-1">{label}</span>
+              <ChevronRight size={18} aria-hidden className="text-text-muted" />
+            </Link>
+          ))}
+        </nav>
+
         <div className="flex flex-col gap-3">
-          <ButtonLink href="/profil/edit">
-            <Pencil size={18} aria-hidden />
-            Edit profil
-          </ButtonLink>
           <form action={keluarAction}>
             <SubmitButton variant="secondary">
               <LogOut size={18} aria-hidden />

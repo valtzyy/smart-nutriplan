@@ -1,4 +1,6 @@
-import { Flame, Moon } from "lucide-react";
+import { ChevronRight, Flame, MessageSquareHeart, Moon } from "lucide-react";
+import Link from "next/link";
+import { BiayaCard } from "@/components/plan/BiayaCard";
 import { AllSlotsEmpty, SlotEmpty } from "@/components/plan/SlotEmpty";
 import { Avatar } from "@/components/ui/Avatar";
 import { BottomNav, BottomNavSpacer } from "@/components/ui/BottomNav";
@@ -108,6 +110,20 @@ export default async function BerandaPage() {
         <ButtonLink href="/meal-plan" variant="secondary">
           Lihat meal plan lengkap
         </ButtonLink>
+
+        {!view.allEmpty && <BiayaCard biaya={view.biaya} />}
+
+        <Link
+          href="/masukan"
+          className="flex items-center gap-3 rounded-lg border border-border bg-surface p-4 transition-colors active:bg-primary-soft/70"
+        >
+          <MessageSquareHeart size={22} aria-hidden className="shrink-0 text-primary-strong" />
+          <span className="flex flex-1 flex-col">
+            <span className="text-body font-semibold text-text">Bantu kami jadi lebih baik</span>
+            <span className="text-small text-text-muted">Beri masukan, cuma 1 menit</span>
+          </span>
+          <ChevronRight size={18} aria-hidden className="text-text-muted" />
+        </Link>
 
         <InfoBox variant="tips">Takaran rumah tangga: 1 centong nasi kira-kira 100 gram nasi matang.</InfoBox>
         <Disclaimer className="pb-2" />

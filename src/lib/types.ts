@@ -19,6 +19,10 @@ export interface ProfileRow {
   onboarding_selesai: boolean;
   created_at: string;
   updated_at: string;
+  /** Kolom migrasi 0003 — undefined bila migrasi belum dijalankan. */
+  kode_rujukan?: string;
+  dirujuk_oleh?: string | null;
+  setuju_ketentuan_at?: string | null;
 }
 
 export interface AllergenRow {
@@ -87,7 +91,8 @@ export type EventName =
   | "recipe_viewed"
   | "slot_empty"
   | "profile_updated"
-  | "logout";
+  | "logout"
+  | "feedback_submitted";
 
 /** Profil yang sudah lengkap (setelah onboarding). */
 export interface CompleteProfile extends ProfileRow {
@@ -100,3 +105,18 @@ export interface CompleteProfile extends ProfileRow {
 }
 
 export type ActionState = { ok: boolean; error?: string; fieldErrors?: Record<string, string> } | null;
+
+export const BERSEDIA_BAYAR = ["0", "<10k", "10-20k", "20-50k", ">50k"] as const;
+export type BersediaBayar = (typeof BERSEDIA_BAYAR)[number];
+
+export interface FeedbackRow {
+  id: number;
+  user_id: string;
+  nps: number;
+  membingungkan: string | null;
+  disukai: string | null;
+  berhenti: string | null;
+  alasan_rekomendasi: string | null;
+  bersedia_bayar: BersediaBayar | null;
+  created_at: string;
+}

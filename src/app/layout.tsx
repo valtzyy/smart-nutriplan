@@ -8,9 +8,15 @@ import type { Metadata, Viewport } from "next";
 import { APP_NAME, APP_TITLE, THEME_COLOR } from "@/lib/brand";
 
 export const metadata: Metadata = {
+  // Pratinjau tautan (WhatsApp dll.) harus memakai domain publik, bukan URL deployment yang dilindungi login.
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ??
-      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"),
+    process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.includes("localhost")
+      ? process.env.NEXT_PUBLIC_SITE_URL
+      : process.env.VERCEL_PROJECT_PRODUCTION_URL
+        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+        : process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}`
+          : "http://localhost:3000",
   ),
   title: APP_TITLE,
   description:

@@ -92,3 +92,31 @@ PRD > ALGORITMA > DATABASE > DESIGN-SYSTEM.
     tab yang ditekan seketika (`useLinkStatus`).
 35. **Umpan balik sentuh**: state `:active` (skala/latar) pada tombol, chip, kartu, tautan; tap-highlight bawaan dimatikan;
     semua tombol submit menampilkan spinner (termasuk "Keluar" dan pilihan di dialog edit profil).
+
+## Penyesuaian dengan KERTAS KERJA BISDIG (Kelompok 7)
+
+36. **Daftar belanja tidak dibuat** (keputusan tim; juga di luar ruang lingkup PRD & KK 7.2). Fitur yang ditunda KK 7.2
+    (konsultasi ahli gizi, premium, forum, pelacakan, notifikasi, aplikasi native) tetap tidak dibuat.
+37. **Migrasi baru `0003_feedback_referral.sql`** (0001/0002 tidak diubah): kolom profil `kode_rujukan`, `dirujuk_oleh`,
+    `setuju_ketentuan_at`; trigger `handle_new_user` diperbarui untuk membaca `ref` & `setuju_ketentuan` dari metadata
+    pendaftaran; trigger pelindung agar pengguna tidak bisa mengubah kolom sistem itu sendiri; tabel `feedback` dengan RLS
+    (insert milik sendiri, baca milik sendiri/admin). Diuji di Postgres 18 lokal dengan stub skema `auth`.
+38. **Aplikasi tetap jalan sebelum 0003 dijalankan**: formulir masukan menampilkan toast galat, bagian "Ajak teman"
+    disembunyikan, dan /admin menampilkan peringatan migrasi.
+39. **Halaman publik `/tentang` & `/privasi`** (KK 8.4). Kontak masih **dummy** di `src/lib/brand.ts` (`KONTAK`) —
+    wajib diganti sebelum dibagikan. Tim ditulis nama panggilan + peran saja (tanpa NIM/nomor HP dari kertas kerja).
+40. **Persetujuan ketentuan wajib saat daftar** (checkbox, divalidasi zod di klien & server); waktunya disimpan di
+    `profiles.setuju_ketentuan_at`.
+41. **Rujukan**: tautan `/?ref=KODE` dari Profil (Salin/Bagikan via Web Share API). Kode dinormalkan huruf besar,
+    4–16 alfanumerik; kode tidak dikenal diabaikan.
+42. **Masukan/NPS** (minggu 8 & 11): 5 pertanyaan closed beta + skor 0–10; NPS = %promotor(9–10) − %detraktor(0–6).
+    Rekap di `/admin/masukan` + CSV.
+43. **AARRR di /admin**: Acquisition = pendaftar 7 hari (vs 7 hari sebelumnya); Activation = selesai onboarding **dan**
+    membuka ≥1 resep (aksi utama = menerima meal plan lalu membaca resepnya); Retention D7 = pendaftar ≥7 hari lalu yang
+    punya event di hari ke-1..7 setelah daftar; Referral = % profil dengan `dirujuk_oleh`; Revenue "—" (belum ada fitur
+    berbayar).
+44. **Anggaran makan harian** (KK 7.3, memakai kolom `anggaran_harian` yang sudah ada): opsional di onboarding langkah 3
+    dan Edit profil. Beranda/Meal Plan menampilkan perkiraan biaya `Σ estimasi_harga × multiplier` (dibulatkan Rp100)
+    dibanding anggaran. Anggaran **tidak** memengaruhi pemilihan menu (algoritma 02-ALGORITMA tidak diubah).
+45. **Pratinjau tautan & URL email** memakai `VERCEL_PROJECT_PRODUCTION_URL` (domain publik), bukan URL deployment yang
+    dilindungi login Vercel; nilai `NEXT_PUBLIC_SITE_URL` berisi localhost diabaikan di Vercel.

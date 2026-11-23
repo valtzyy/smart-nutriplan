@@ -9,6 +9,7 @@ import { logEvent } from "@/lib/events";
 import { formatAngka, gabungDaftar, SLOT_LABEL } from "@/lib/labels";
 import { MAKS_BUAT_ULANG } from "@/lib/nutrition/constants";
 import { loadTodayView } from "@/lib/plan-view";
+import { formatRupiah } from "@/lib/biaya";
 
 export const metadata = { title: "Meal plan hari ini — Smart NutriPlan" };
 
@@ -29,6 +30,12 @@ export default async function MealPlanPage() {
         <div className="flex flex-wrap gap-2">
           <Badge>Target {formatAngka(view.plan.target_kalori)} kkal</Badge>
           <Badge variant="accent">Total {formatAngka(view.totals.kalori)} kkal</Badge>
+          {!view.allEmpty && (
+            <Badge variant={view.biaya.status === "di_atas_anggaran" ? "accent" : "primary"}>
+              ±{formatRupiah(view.biaya.total)}
+              {view.biaya.anggaran != null && ` / ${formatRupiah(view.biaya.anggaran)}`}
+            </Badge>
+          )}
         </div>
 
         {view.allEmpty ? (

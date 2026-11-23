@@ -4,6 +4,37 @@ export interface MetricProfile {
   id: string;
   created_at: string;
   onboarding_selesai: boolean;
+  /** Kolom migrasi 0003; undefined bila belum tersedia. */
+  dirujuk_oleh?: string | null;
+}
+export interface MetricFeedback {
+  nps: number;
+  created_at: string;
+}
+
+export interface NpsResult {
+  /** % promotor (9–10) − % detraktor (0–6); null bila belum ada jawaban. */
+  skor: number | null;
+  jumlah: number;
+  promotor: number;
+  pasif: number;
+  detraktor: number;
+}
+
+/** Kerangka AARRR (KERTAS KERJA minggu 11). Persentase dibulatkan 1 desimal; null = belum bisa dihitung. */
+export interface AarrrMetrics {
+  /** Acquisition: pendaftar baru 7 hari terakhir & 7 hari sebelumnya. */
+  akuisisi7Hari: number;
+  akuisisi7HariSebelumnya: number;
+  /** Activation: % pendaftar yang selesai onboarding (dapat meal plan) DAN membuka ≥1 resep. */
+  aktivasi: number | null;
+  aktivasiJumlah: number;
+  /** Retention: % pendaftar (≥7 hari lalu) yang kembali punya event di hari ke-1..7 setelah daftar. */
+  retensiD7: number | null;
+  /** Referral: % pengguna yang datang lewat tautan rujukan (null bila kolom rujukan belum ada). */
+  rujukan: number | null;
+  rujukanJumlah: number;
+  nps: NpsResult;
 }
 export interface MetricEvent {
   user_id: string | null;
@@ -32,6 +63,30 @@ export interface AdminMetrics {
   resepDibuka7Hari: number;
   slotKosong7Hari: number;
   harian: DailyRow[];
+  aarrr: AarrrMetrics;
+}
+
+function persen(a: number, b: number): number | null {
+  return b === 0 ? null : Math.round((a / b) * 1000) / 10;
+}
+
+export function hitungNps(feedback: MetricFeedback[]): NpsResult {
+  let promotor = 0;
+  let pasif = 0;
+  let detraktor = 0;
+  for (const f of feedback) {
+    if (f.nps >= 9) promotor++;
+    else if (f.nps >= 7) pasif++;
+    else detraktor++;
+  }
+  const jumlah = feedback.length;
+  return {
+    skor: jumlah === 0 ? null : Math.round(((promotor - detraktor) / jumlah) * 100),
+    jumlah,
+    promotor,
+    pasif,
+    detraktor,
+  };
 }
 
 /** Semua metrik traksi /admin, dihitung di zona Asia/Jakarta. Fungsi murni. */
@@ -39,6 +94,7 @@ export function computeAdminMetrics(input: {
   profiles: MetricProfile[];
   events: MetricEvent[];
   plans: MetricPlan[];
+  feedback?: MetricFeedback[];
   today: string;
   days?: number;
 }): AdminMetrics {
@@ -96,7 +152,48 @@ export function computeAdminMetrics(input: {
     });
   }
 
+  // ===== AARRR =====
+  const daftarPerUser = new Map(profiles.map((p) => [p.id, tanggalJakarta(p.created_at)]));
+  let akuisisi7 = 0;
+  let akuisisiSebelumnya = 0;
+  for (const t of daftarPerUser.values()) {
+    const umur = selisihHari(t, today);
+    if (umur >= 0 && umur <= 6) akuisisi7++;
+    else if (umur >= 7 && umur <= 13) akuisisiSebelumnya++;
+  }
+
+  const bukaResep = new Set<string>();
+  for (const e of events) if (e.nama === "recipe_viewed" && e.user_id) bukaResep.add(e.user_id);
+  const aktif = profiles.filter((p) => p.onboarding_selesai && bukaResep.has(p.id)).length;
+
+  let eligibleD7 = 0;
+  let kembaliD7 = 0;
+  for (const [id, daftar] of daftarPerUser) {
+    if (selisihHari(daftar, today) < 7) continue;
+    eligibleD7++;
+    const hari = aktifPerUser.get(id);
+    if (hari && [...hari].some((t) => {
+      const d = selisihHari(daftar, t);
+      return d >= 1 && d <= 7;
+    })) kembaliD7++;
+  }
+
+  const adaKolomRujukan = profiles.some((p) => p.dirujuk_oleh !== undefined);
+  const dirujuk = profiles.filter((p) => p.dirujuk_oleh).length;
+
+  const aarrr: AarrrMetrics = {
+    akuisisi7Hari: akuisisi7,
+    akuisisi7HariSebelumnya: akuisisiSebelumnya,
+    aktivasi: persen(aktif, profiles.length),
+    aktivasiJumlah: aktif,
+    retensiD7: persen(kembaliD7, eligibleD7),
+    rujukan: adaKolomRujukan ? persen(dirujuk, profiles.length) : null,
+    rujukanJumlah: dirujuk,
+    nps: hitungNps(input.feedback ?? []),
+  };
+
   return {
+    aarrr,
     totalPengguna: profiles.length,
     selesaiOnboarding: profiles.filter((p) => p.onboarding_selesai).length,
     aktifHariIni: aktifPerHari.get(today)?.size ?? 0,

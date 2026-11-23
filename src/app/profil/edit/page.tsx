@@ -23,6 +23,7 @@ export default async function EditProfilPage() {
           aktivitas_fisik: p.aktivitas_fisik,
           tujuan: p.tujuan,
           allergen_ids: ids,
+          anggaran_harian: p.anggaran_harian,
         }}
       />
     </main>

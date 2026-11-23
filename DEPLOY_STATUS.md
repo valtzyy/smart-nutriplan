@@ -1,5 +1,10 @@
 # DEPLOY_STATUS.md
 
+## ⚠️ Langkah baru: jalankan migrasi 0003
+Supabase → SQL Editor → tempel isi `supabase/migrations/0003_feedback_referral.sql` → **Run** (aman dijalankan ulang).
+Tanpa migrasi ini: formulir Masukan gagal tersimpan, bagian "Ajak teman" tidak muncul, dan metrik Rujukan/NPS di /admin kosong.
+Lalu ganti kontak dummy di `src/lib/brand.ts` (`KONTAK`) sebelum aplikasi dibagikan.
+
 ## ✅ ONLINE — https://smart-nutriplan.vercel.app (23 Nov 2026)
 - Penyebab NOT_FOUND sebelumnya: proyek Vercel dibuat saat `main` belum berisi aplikasi, sehingga Framework Preset
   terdeteksi "Other" (hanya folder `public/` yang disajikan). Diperbaiki dengan `vercel.json` (`"framework": "nextjs"`).

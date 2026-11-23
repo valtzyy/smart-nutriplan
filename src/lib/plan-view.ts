@@ -1,5 +1,6 @@
 import "server-only";
 import { loadAllergens, pilihAlergen } from "./allergens";
+import { estimasiBiayaHarian, statusAnggaran, type EstimasiBiaya, type StatusAnggaran } from "./biaya";
 import type { OnboardedSession } from "./auth";
 import { getJakartaNow } from "./date";
 import { ensurePlan, loadPlanAndContext, swappableSlots, type PlanWithItems } from "./mealplan";
@@ -21,6 +22,7 @@ export interface TodayView {
   totals: { kalori: number; protein: number; karbohidrat: number; lemak: number };
   userAllergens: AllergenRow[];
   allEmpty: boolean;
+  biaya: EstimasiBiaya & { anggaran: number | null; status: StatusAnggaran; selisih: number };
 }
 
 /**
@@ -57,7 +59,14 @@ export async function loadTodayView(session: OnboardedSession, now = new Date())
     totals.lemak += item.lemak;
   }
 
+  const est = estimasiBiayaHarian(
+    items.filter((i) => i.menu).map((i) => ({ estimasiHarga: i.menu!.estimasi_harga, multiplier: i.item.multiplier })),
+  );
+  const anggaran = profile.anggaran_harian;
+  const biaya = { ...est, anggaran, ...statusAnggaran(est.total, anggaran) };
+
   return {
+    biaya,
     tanggal,
     jam,
     plan: plan.plan,

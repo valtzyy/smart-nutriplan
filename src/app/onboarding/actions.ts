@@ -8,7 +8,7 @@ import { logEvent, logEvents } from "@/lib/events";
 import { ensurePlan } from "@/lib/mealplan";
 import { isComplete } from "@/lib/onboarding";
 import type { ActionState, ProfileRow } from "@/lib/types";
-import { allergenIdsSchema, fieldErrors, profilTubuhSchema, tujuanSchema } from "@/lib/validation";
+import { fieldErrors, preferensiSchema, profilTubuhSchema, tujuanSchema } from "@/lib/validation";
 
 const s = (fd: FormData, k: string) => String(fd.get(k) ?? "");
 
@@ -39,10 +39,13 @@ export async function simpanTujuan(_prev: ActionState, fd: FormData): Promise<Ac
 }
 
 export async function simpanPreferensi(_prev: ActionState, fd: FormData): Promise<ActionState> {
-  const parsed = allergenIdsSchema.safeParse(fd.getAll("allergen_ids"));
-  if (!parsed.success) return { ok: false, error: PESAN_GALAT };
+  const parsed = preferensiSchema.safeParse({
+    allergen_ids: fd.getAll("allergen_ids"),
+    anggaran_harian: s(fd, "anggaran_harian"),
+  });
+  if (!parsed.success) return { ok: false, fieldErrors: fieldErrors(parsed.error) };
   const { supabase, user } = await requireOnboardingStep(3);
-  const ids = [...new Set(parsed.data)];
+  const ids = [...new Set(parsed.data.allergen_ids)];
 
   const del = await supabase.from("profile_allergens").delete().eq("profile_id", user.id);
   if (del.error) return { ok: false, error: PESAN_GALAT };
@@ -55,7 +58,7 @@ export async function simpanPreferensi(_prev: ActionState, fd: FormData): Promis
 
   const { data: updated, error } = await supabase
     .from("profiles")
-    .update({ onboarding_selesai: true })
+    .update({ onboarding_selesai: true, anggaran_harian: parsed.data.anggaran_harian })
     .eq("id", user.id)
     .select("*")
     .single();

@@ -2,7 +2,13 @@
 
 import { useActionState, useState } from "react";
 import { simpanPreferensi, simpanProfilTubuh, simpanTujuan } from "@/app/onboarding/actions";
-import { AllergenFields, TubuhFields, TujuanFields, type TubuhValues } from "@/components/profile/ProfileFields";
+import {
+  AllergenFields,
+  AnggaranField,
+  TubuhFields,
+  TujuanFields,
+  type TubuhValues,
+} from "@/components/profile/ProfileFields";
 import { Button } from "@/components/ui/Button";
 import { Disclaimer } from "@/components/ui/Disclaimer";
 import { InfoBox } from "@/components/ui/InfoBox";
@@ -67,12 +73,21 @@ export function TujuanForm({ initial }: { initial: string }) {
   );
 }
 
-export function PreferensiForm({ allergens, initial }: { allergens: AllergenRow[]; initial: number[] }) {
+export function PreferensiForm({
+  allergens,
+  initial,
+  anggaran,
+}: {
+  allergens: AllergenRow[];
+  initial: number[];
+  anggaran: number | null;
+}) {
   const [ids, setIds] = useState(initial);
   const [state, action, pending] = useActionState(simpanPreferensi, null);
   return (
     <form action={action} className="flex flex-1 flex-col gap-6">
       <AllergenFields allergens={allergens} value={ids} onChange={setIds} />
+      <AnggaranField defaultValue={anggaran} error={state?.fieldErrors?.anggaran_harian} />
       <InfoBox>
         Punya kondisi medis seperti GERD atau diabetes? Konsultasikan dulu ke ahli gizi. Filter kondisi kesehatan hadir
         di versi berikutnya.

@@ -35,17 +35,44 @@ function useValidatedAction(
 
 const get = (fd: FormData, k: string) => String(fd.get(k) ?? "");
 
-export function DaftarForm() {
+export function DaftarForm({ kodeRujukan }: { kodeRujukan?: string }) {
   const { state, formAction, pending, onSubmit, errors } = useValidatedAction(daftarSchema, daftarAction, (fd) => ({
     nama: get(fd, "nama"),
     email: get(fd, "email"),
     password: get(fd, "password"),
+    setuju: get(fd, "setuju") === "on",
   }));
   return (
     <form action={formAction} onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
       <Input label="Nama panggilan" name="nama" autoComplete="nickname" error={errors.nama} required />
       <Input label="Email" name="email" type="email" autoComplete="email" inputMode="email" error={errors.email} required />
       <PasswordInput label="Kata sandi" name="password" autoComplete="new-password" error={errors.password} required />
+      {kodeRujukan && (
+        <>
+          <input type="hidden" name="ref" value={kodeRujukan} />
+          <p className="rounded-md bg-primary-soft px-4 py-3 text-small text-primary-strong">
+            Kamu diajak oleh teman (kode {kodeRujukan}). Selamat bergabung!
+          </p>
+        </>
+      )}
+      <div className="flex flex-col gap-1">
+        <label className="flex min-h-11 items-start gap-3 text-small text-text">
+          <input
+            type="checkbox"
+            name="setuju"
+            className="mt-0.5 size-5 shrink-0 accent-primary-strong"
+            aria-invalid={errors.setuju ? true : undefined}
+          />
+          <span>
+            Aku sudah membaca dan setuju dengan{" "}
+            <Link href="/privasi" target="_blank" className="font-semibold text-primary-strong underline underline-offset-2">
+              Ketentuan Penggunaan &amp; Privasi
+            </Link>
+            , termasuk penggunaan data kesehatanku untuk menyusun meal plan.
+          </span>
+        </label>
+        {errors.setuju && <p className="text-caption text-danger-text">{errors.setuju}</p>}
+      </div>
       <Button type="submit" loading={pending} className="mt-2">
         Daftar
       </Button>

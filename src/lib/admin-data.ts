@@ -22,3 +22,17 @@ export async function fetchAll<T>(
   }
   return out;
 }
+
+/** Seperti fetchAll, tetapi mengembalikan `null` bila tabel/kolom belum ada (mis. migrasi belum dijalankan). */
+export async function fetchAllOrNull<T>(
+  supabase: SupabaseClient,
+  table: string,
+  columns: string,
+): Promise<T[] | null> {
+  try {
+    return await fetchAll<T>(supabase, table, columns);
+  } catch (e) {
+    console.warn(`[admin] ${table}(${columns}) tidak tersedia:`, e instanceof Error ? e.message : e);
+    return null;
+  }
+}
