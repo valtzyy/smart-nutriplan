@@ -13,6 +13,8 @@ import { AMBANG_TINGGI_PROTEIN } from "@/lib/nutrition/constants";
 import { formatKomponen } from "@/lib/nutrition/trt";
 import type { MealPlanItemRow, MenuRow } from "@/lib/types";
 
+export const metadata = { title: "Detail menu — Smart NutriPlan" };
+
 export default async function MenuDetailPage({ params, searchParams }: PageProps<"/menu/[slug]">) {
   const { supabase, user } = await requireOnboarded();
   const { slug } = await params;
@@ -86,16 +88,14 @@ export default async function MenuDetailPage({ params, searchParams }: PageProps
 
       <section aria-label="Kandungan gizi" className="grid grid-cols-4 gap-2">
         {[
-          { label: "Kalori", value: formatAngka(gizi.kalori), unit: "kkal" },
-          { label: "Protein", value: gizi.protein, unit: "g" },
-          { label: "Karbo", value: gizi.karbohidrat, unit: "g" },
-          { label: "Lemak", value: gizi.lemak, unit: "g" },
+          { label: "Kalori (kkal)", value: formatAngka(gizi.kalori) },
+          { label: "Protein", value: `${gizi.protein} g` },
+          { label: "Karbo", value: `${gizi.karbohidrat} g` },
+          { label: "Lemak", value: `${gizi.lemak} g` },
         ].map((g) => (
           <div key={g.label} className="flex flex-col items-center rounded-md border border-border bg-surface px-1 py-3">
             <span className="text-h3-style text-text">{g.value}</span>
-            <span className="text-caption text-text-muted">
-              {g.unit} {g.label.toLowerCase()}
-            </span>
+            <span className="text-center text-caption text-text-muted">{g.label}</span>
           </div>
         ))}
       </section>

@@ -15,6 +15,7 @@ export function OptionCard({ title, description, selected, onSelect }: OptionCar
       type="button"
       role="radio"
       aria-checked={selected}
+      aria-label={`${title}: ${description}`}
       onClick={onSelect}
       className={cn(
         "flex w-full items-center gap-3 rounded-lg p-4 text-left transition-colors",

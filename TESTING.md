@@ -10,7 +10,8 @@ Tanggal sesi: 23 November 2026. Lingkungan: Windows 11, Node 22.23, Next.js 16.4
 | `npm test` (vitest) | ✅ 79 tes lulus, 5 file |
 | `npm run build` tanpa env Supabase | ✅ sukses, semua halaman berdata dirender dinamis (ƒ) |
 | Uji visual halaman publik di `npm run dev` (lebar 360 px) | ✅ |
-| Uji manual alur Annisa dengan Supabase sungguhan | ⏳ **perlu dijalankan setelah deploy** — env Supabase tidak tersedia di sesi ini |
+| Uji manual alur Annisa dengan Supabase sungguhan (lokal, `npm run dev`) | ✅ lulus — lihat "Hasil uji alur Annisa" |
+| Uji di URL produksi | ⏳ belum — `https://smart-nutriplan.vercel.app` masih `NOT_FOUND` dari Vercel |
 
 ## Tes otomatis (vitest)
 
@@ -48,7 +49,37 @@ Server `npm run dev`, browser 360×760:
   dan tombol Ganti; kartu EmptyState "Belum ada menu camilan yang cocok dengan pantanganmu." + "Ubah pantangan";
   BottomNav — semua rapi di 360 px ✅
 
-## Uji manual alur utama — PERLU DIJALANKAN SETELAH DEPLOY
+## Hasil uji alur Annisa (23 Nov 2026, ±14:55 WIB, lokal → Supabase proyek produksi, viewport 390×800)
+
+Akun uji dibuat dengan email `annisa.uji.<timestamp>@example.com` (kredensial di `.env.test.local`, tidak di-commit).
+
+| # | Langkah | Hasil |
+| --- | --- | --- |
+| 2 | Daftar "Annisa" → langsung ke `/onboarding/profil` | ✅ |
+| 3 | Buka `/beranda` sebelum onboarding → kembali ke `/onboarding/profil` | ✅ |
+| 4 | Langkah 1 (21 th, wanita, 55 kg, 160 cm, sedang) → reload langsung ke langkah 2 | ✅ |
+| 5 | Langkah 2 "Turunkan berat badan"; kotak info batas kalori + disclaimer tampil | ✅ |
+| 6 | Langkah 3 alergi Udang; kotak info GERD + disclaimer → Beranda | ✅ |
+| 7 | Beranda: **Target 1.490 kkal**, total 1.495 kkal, makro, "Makan berikutnya" = Makan siang (jam 14 WIB), tips, disclaimer | ✅ |
+| 8 | Meal Plan: 4 menu (nasi merah + telur dadar sayur / nasi + ayam bakar + sayur bening / nasi + telur balado + sayur sop / yogurt + buah potong), **tanpa udang**, "Semua menu bebas udang…", "Sisa 3 kali hari ini" | ✅ |
+| 9 | Detail yogurt: "Camilan · 150 kkal · ±5 menit", badge "Bebas udang", porsi "½ mangkok buah potong", bahan, langkah, sumber + biaya ±Rp8.000, label "Estimasi gizi — belum dicek ahli gizi" | ✅ |
+| 10 | Ganti sarapan → hanya slot sarapan berubah (→ roti gandum + selai kacang + pisang) | ✅ |
+| 11 | Buat ulang ×3 → "Sisa 2…", lalu tombol nonaktif + "Batas buat ulang hari ini sudah habis. Coba ganti per menu." | ✅ |
+| 12 | Edit profil BB 60 → dialog → "Ya, perbarui" → Beranda **1.570 kkal**; kuota buat ulang tetap habis (tidak bertambah) | ✅ |
+| 13 | Semua 10 alergen/pantangan dipilih → plan dibuat ulang tanpa satu pun; sarapan tinggal 1 kandidat → tombol Ganti nonaktif "Belum ada menu lain yang cocok" | ✅ (kartu EmptyState slot tidak bisa dipicu dengan 20 menu seed karena tiap slot selalu punya ≥1 menu bebas semua alergen — tercakup tes unit 6.3-4) |
+| 14 | Keluar → Welcome; `/beranda` → `/masuk?next=/beranda` | ✅ |
+| 15 | Masuk lagi → `/beranda`, meal plan hari ini sama (target 1.570) | ✅ |
+| 16 | Lupa/reset sandi | ⏳ butuh email sungguhan — uji di produksi |
+| 17 | Admin | ⏳ butuh SQL penetapan admin — uji di produksi |
+| 18 | Tabel `events` | ⏳ hanya admin yang bisa membaca (RLS) — cek di Table Editor Supabase |
+
+Perbaikan kecil dari uji ini: nama aksesibel OptionCard (tujuan), judul tab halaman detail menu, label kotak gizi
+("Kalori (kkal)", "7 g / Protein").
+
+Catatan data: porsi "1 butir telur telur dadar sayur" muncul karena satuan seed = "butir telur" dan nama = "Telur dadar
+sayur" (format TRT sesuai spesifikasi). Bisa dirapikan lewat `/admin/menu` (mis. satuan "porsi").
+
+## Uji manual alur utama — ulangi di URL produksi setelah deploy
 
 Prasyarat: migrasi 0001 + 0002 sudah dijalankan, "Confirm email" OFF (lihat `DEPLOY_STATUS.md`).
 Lakukan di HP (lebar 360–430 px) atau DevTools mode mobile. Centang tiap butir.
