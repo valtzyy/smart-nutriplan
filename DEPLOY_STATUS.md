@@ -1,5 +1,13 @@
 # DEPLOY_STATUS.md
 
+## ✅ ONLINE — https://smart-nutriplan.vercel.app (23 Nov 2026)
+- Penyebab NOT_FOUND sebelumnya: proyek Vercel dibuat saat `main` belum berisi aplikasi, sehingga Framework Preset
+  terdeteksi "Other" (hanya folder `public/` yang disajikan). Diperbaiki dengan `vercel.json` (`"framework": "nextjs"`).
+- Dicek dari luar: `/` 200 (judul, hero, disclaimer), `/daftar` `/masuk` `/lupa-sandi` `/cek-email` 200;
+  `/beranda` `/meal-plan` `/profil` `/onboarding/profil` → `/masuk?next=…` (proxy + env Supabase aktif);
+  `/reset-sandi` tanpa sesi → `/lupa-sandi`; `/admin` `/admin/menu` → 404.
+- Sisa langkah manual: bagian "4. Setelah online" (Site URL Supabase, penetapan admin, checklist TESTING.md di HP).
+
 ## Pembaruan 23 Nov 2026
 - Supabase: migrasi 0001 + 0002 sudah jalan, Email provider aktif, Confirm email OFF. Alur Annisa lulus (lihat TESTING.md).
 - Branch `claude/smart-nutriplan-mvp` sudah di-merge (fast-forward) ke `main` dan di-push (commit `66f1501`).
