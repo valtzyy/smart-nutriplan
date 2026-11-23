@@ -137,3 +137,23 @@ Lokal (`npm run dev`, 390 px, Supabase proyek ini — **0003 belum dijalankan di
 
 Perlu diuji setelah 0003 dijalankan: kirim masukan → "Terima kasih"; Profil menampilkan "Ajak teman"; daftar lewat
 `/?ref=KODE` → admin AARRR "Datang lewat rujukan" bertambah; `/admin/masukan` menampilkan jawaban + skor NPS.
+
+### Setelah migrasi 0003 dijalankan di Supabase (23 Nov 2026)
+
+REST: tabel `feedback` dan kolom `profiles.kode_rujukan` tersedia (HTTP 200; anon melihat 0 baris karena RLS). ✅
+
+Lokal (`npm run dev`, 390 px, Supabase proyek ini):
+- Masukan: skor 8 + 2 jawaban bertanda "[UJI CLAUDE]" → layar "Terima kasih atas masukanmu!" ✅
+- Profil akun uji Annisa: "Ajak teman" tampil dengan tautan `/?ref=832B6AD1` ✅
+- Keluar → Welcome, cookie sesi terhapus ✅ (percobaan pertama tampak gagal hanya karena panel browser uji tersembunyi
+  sehingga redirect klien tertahan; diulang dengan panel aktif → berhasil)
+- `/?ref=832b6ad1` → tombol "Mulai" mengarah ke `/daftar?ref=832B6AD1` (huruf dinormalkan) ✅
+- `/daftar?ref=…` menampilkan "Kamu diajak oleh teman (kode 832B6AD1)" ✅
+- Daftar tanpa centang persetujuan → "Centang persetujuan dulu, ya." ✅; dengan centang → akun uji ke-2 ("Budi") terdaftar
+  dan masuk onboarding (trigger `handle_new_user` versi 0003 berjalan tanpa galat) ✅
+- ⏳ Cek oleh admin: /admin → AARRR "Datang lewat rujukan" = 1 pengguna; /admin/masukan menampilkan jawaban "[UJI CLAUDE]"
+  dengan NPS 8.
+
+Akun uji (kredensial di `.env.test.local`, tidak di-commit): `annisa.uji.…@example.com` (perujuk) dan
+`budi.rujukan.…@example.com` (dirujuk, onboarding belum diisi). Hapus keduanya di Supabase → Authentication → Users
+sebelum menghitung metrik sungguhan; masukan uji ikut terhapus (cascade).
