@@ -1,0 +1,177 @@
+{
+  "_catatan": "Nilai gizi adalah ESTIMASI awal tim untuk MVP dan wajib divalidasi dengan TKPI + ahli gizi. Semua menu dimuat dengan status 'aktif' dan dicek_ahli_gizi=false.",
+  "allergens": [
+    { "kode": "udang", "nama": "Udang", "jenis": "alergi", "urutan": 1 },
+    { "kode": "seafood", "nama": "Seafood", "jenis": "alergi", "urutan": 2 },
+    { "kode": "kacang", "nama": "Kacang", "jenis": "alergi", "urutan": 3 },
+    { "kode": "susu", "nama": "Susu", "jenis": "alergi", "urutan": 4 },
+    { "kode": "telur", "nama": "Telur", "jenis": "alergi", "urutan": 5 },
+    { "kode": "gluten", "nama": "Gluten", "jenis": "alergi", "urutan": 6 },
+    { "kode": "daging_sapi", "nama": "Daging sapi", "jenis": "pantangan", "urutan": 7 },
+    { "kode": "jeroan", "nama": "Jeroan", "jenis": "pantangan", "urutan": 8 },
+    { "kode": "santan", "nama": "Santan", "jenis": "pantangan", "urutan": 9 },
+    { "kode": "pedas", "nama": "Pedas", "jenis": "pantangan", "urutan": 10 }
+  ],
+  "menus": [
+    {
+      "slug": "nasi-merah-telur-dadar-sayur", "nama": "Nasi merah + telur dadar sayur", "kategori": "sarapan",
+      "kalori": 375, "protein": 15, "karbohidrat": 45, "lemak": 14, "waktu_masak_menit": 15, "estimasi_harga": 8000,
+      "porsi": [{ "nama": "Nasi merah", "qty": 1, "satuan": "centong" }, { "nama": "Telur dadar sayur", "qty": 1, "satuan": "butir telur" }],
+      "bahan": ["1 centong nasi merah", "1 butir telur", "1/2 buah wortel, parut", "1 batang daun bawang, iris", "1 sdt minyak", "garam secukupnya"],
+      "langkah": ["Kocok telur dengan wortel, daun bawang, dan sedikit garam.", "Panaskan minyak di teflon, tuang telur, masak sampai kedua sisi matang.", "Sajikan dengan 1 centong nasi merah."],
+      "alergen": ["telur"], "cocok_untuk": ["turun", "jaga", "naik"]
+    },
+    {
+      "slug": "oatmeal-pisang-susu", "nama": "Oatmeal pisang susu", "kategori": "sarapan",
+      "kalori": 330, "protein": 11, "karbohidrat": 55, "lemak": 7, "waktu_masak_menit": 7, "estimasi_harga": 9000,
+      "porsi": [{ "nama": "Oat", "qty": 4, "satuan": "sdm" }, { "nama": "Susu cair", "qty": 1, "satuan": "gelas" }, { "nama": "Pisang", "qty": 1, "satuan": "buah" }],
+      "bahan": ["4 sdm oat", "1 gelas susu cair rendah lemak", "1 buah pisang ambon", "sejumput kayu manis bubuk (opsional)"],
+      "langkah": ["Masak oat dengan susu di api kecil sambil diaduk 3–5 menit.", "Tuang ke mangkok, beri irisan pisang dan kayu manis."],
+      "alergen": ["susu", "gluten"], "cocok_untuk": ["turun", "jaga", "naik"]
+    },
+    {
+      "slug": "bubur-ayam-tanpa-kerupuk", "nama": "Bubur ayam tanpa kerupuk", "kategori": "sarapan",
+      "kalori": 360, "protein": 18, "karbohidrat": 50, "lemak": 9, "waktu_masak_menit": 30, "estimasi_harga": 10000,
+      "porsi": [{ "nama": "Bubur nasi", "qty": 1, "satuan": "mangkok" }, { "nama": "Suwiran ayam", "qty": 2, "satuan": "sdm" }],
+      "bahan": ["1/2 centong beras", "3 gelas air", "50 g dada ayam rebus, suwir", "1 batang seledri, iris", "1 sdt bawang goreng", "garam dan merica secukupnya"],
+      "langkah": ["Masak beras dengan air sambil diaduk sampai menjadi bubur.", "Bumbui dengan garam dan merica.", "Sajikan dengan suwiran ayam, seledri, dan bawang goreng."],
+      "alergen": [], "cocok_untuk": ["turun", "jaga", "naik"]
+    },
+    {
+      "slug": "roti-gandum-selai-kacang-pisang", "nama": "Roti gandum + selai kacang + pisang", "kategori": "sarapan",
+      "kalori": 380, "protein": 12, "karbohidrat": 52, "lemak": 14, "waktu_masak_menit": 5, "estimasi_harga": 8000,
+      "porsi": [{ "nama": "Roti gandum", "qty": 2, "satuan": "lembar" }, { "nama": "Selai kacang", "qty": 1, "satuan": "sdm" }, { "nama": "Pisang", "qty": 1, "satuan": "buah" }],
+      "bahan": ["2 lembar roti gandum", "1 sdm selai kacang", "1 buah pisang"],
+      "langkah": ["Panggang roti sebentar bila suka.", "Oles selai kacang, beri irisan pisang di atasnya."],
+      "alergen": ["gluten", "kacang"], "cocok_untuk": ["turun", "jaga", "naik"]
+    },
+    {
+      "slug": "nasi-uduk-tempe-orek-telur", "nama": "Nasi uduk + tempe orek + telur rebus", "kategori": "sarapan",
+      "kalori": 450, "protein": 16, "karbohidrat": 55, "lemak": 18, "waktu_masak_menit": 25, "estimasi_harga": 10000,
+      "porsi": [{ "nama": "Nasi uduk", "qty": 1, "satuan": "centong" }, { "nama": "Tempe orek", "qty": 2, "satuan": "sdm" }, { "nama": "Telur rebus", "qty": 1, "satuan": "butir" }],
+      "bahan": ["1 centong nasi uduk", "1/4 papan tempe, potong dadu", "1 sdm kecap manis", "1 butir telur", "1 siung bawang putih", "1 sdt minyak"],
+      "langkah": ["Rebus telur 10 menit.", "Tumis bawang putih, masukkan tempe dan kecap, aduk sampai kering.", "Sajikan nasi uduk dengan tempe orek dan telur rebus."],
+      "alergen": ["santan", "telur"], "cocok_untuk": ["jaga", "naik"]
+    },
+    {
+      "slug": "nasi-ayam-bakar-sayur-bening", "nama": "Nasi + ayam bakar + sayur bening bayam", "kategori": "makan_siang",
+      "kalori": 520, "protein": 34, "karbohidrat": 58, "lemak": 15, "waktu_masak_menit": 25, "estimasi_harga": 15000,
+      "porsi": [{ "nama": "Nasi putih", "qty": 1, "satuan": "centong" }, { "nama": "Ayam bakar", "qty": 1, "satuan": "potong paha" }, { "nama": "Sayur bening bayam", "qty": 1, "satuan": "mangkok" }],
+      "bahan": ["1 potong paha ayam", "2 siung bawang putih", "1 sdm kecap manis", "1 ikat bayam", "1 buah jagung manis", "2 siung bawang merah", "garam secukupnya"],
+      "langkah": ["Lumuri ayam dengan bawang putih halus, garam, dan kecap. Diamkan 15 menit.", "Bakar ayam di teflon atau arang sampai matang sambil diolesi sisa bumbu.", "Didihkan air dengan irisan bawang merah, masukkan jagung lalu bayam, beri garam, masak 2 menit.", "Sajikan ayam dan sayur dengan 1 centong nasi."],
+      "alergen": [], "cocok_untuk": ["turun", "jaga", "naik"]
+    },
+    {
+      "slug": "nasi-pecel-tempe", "nama": "Nasi pecel sayur + tempe goreng", "kategori": "makan_siang",
+      "kalori": 480, "protein": 18, "karbohidrat": 60, "lemak": 18, "waktu_masak_menit": 20, "estimasi_harga": 10000,
+      "porsi": [{ "nama": "Nasi putih", "qty": 1, "satuan": "centong" }, { "nama": "Sayur rebus", "qty": 1, "satuan": "piring kecil" }, { "nama": "Sambal pecel", "qty": 2, "satuan": "sdm" }, { "nama": "Tempe goreng", "qty": 2, "satuan": "potong" }],
+      "bahan": ["1 centong nasi", "kangkung, kacang panjang, tauge secukupnya", "2 sdm sambal pecel siap pakai", "2 potong tempe"],
+      "langkah": ["Rebus sayuran sebentar, tiriskan.", "Encerkan sambal pecel dengan sedikit air hangat.", "Goreng tempe, sajikan bersama nasi, sayur, dan siraman sambal."],
+      "alergen": ["kacang", "pedas"], "cocok_untuk": ["turun", "jaga", "naik"]
+    },
+    {
+      "slug": "nasi-ikan-kembung-bakar-buncis", "nama": "Nasi + ikan kembung bakar + tumis buncis", "kategori": "makan_siang",
+      "kalori": 500, "protein": 30, "karbohidrat": 55, "lemak": 16, "waktu_masak_menit": 25, "estimasi_harga": 14000,
+      "porsi": [{ "nama": "Nasi putih", "qty": 1, "satuan": "centong" }, { "nama": "Ikan kembung bakar", "qty": 1, "satuan": "ekor sedang" }, { "nama": "Tumis buncis", "qty": 1, "satuan": "mangkok" }],
+      "bahan": ["1 ekor ikan kembung", "1 buah jeruk nipis", "1 genggam buncis", "2 siung bawang putih", "garam secukupnya", "1 sdt minyak"],
+      "langkah": ["Lumuri ikan dengan jeruk nipis dan garam, diamkan 10 menit.", "Bakar ikan di teflon sampai matang.", "Tumis bawang putih, masukkan buncis, beri garam, masak sampai layu."],
+      "alergen": ["seafood"], "cocok_untuk": ["turun", "jaga", "naik"]
+    },
+    {
+      "slug": "nasi-sayur-asem-tahu-tempe-bacem", "nama": "Nasi + sayur asem + tahu tempe bacem", "kategori": "makan_siang",
+      "kalori": 470, "protein": 17, "karbohidrat": 66, "lemak": 14, "waktu_masak_menit": 35, "estimasi_harga": 9000,
+      "porsi": [{ "nama": "Nasi putih", "qty": 1, "satuan": "centong" }, { "nama": "Sayur asem", "qty": 1, "satuan": "mangkok" }, { "nama": "Tahu bacem", "qty": 1, "satuan": "potong" }, { "nama": "Tempe bacem", "qty": 1, "satuan": "potong" }],
+      "bahan": ["1 centong nasi", "sayur asem (labu siam, kacang panjang, jagung)", "1 potong tahu", "1 potong tempe", "1 sdm gula merah", "air asam jawa"],
+      "langkah": ["Rebus tahu dan tempe dengan bumbu bacem dan gula merah sampai meresap, panggang sebentar.", "Masak sayur asem dengan air asam jawa sampai sayur empuk.", "Sajikan bersama nasi."],
+      "alergen": [], "cocok_untuk": ["turun", "jaga", "naik"]
+    },
+    {
+      "slug": "gado-gado-lontong", "nama": "Gado-gado + lontong", "kategori": "makan_siang",
+      "kalori": 520, "protein": 18, "karbohidrat": 62, "lemak": 22, "waktu_masak_menit": 20, "estimasi_harga": 12000,
+      "porsi": [{ "nama": "Lontong", "qty": 1, "satuan": "potong besar" }, { "nama": "Sayur rebus", "qty": 1, "satuan": "piring" }, { "nama": "Bumbu kacang", "qty": 3, "satuan": "sdm" }, { "nama": "Telur rebus", "qty": 1, "satuan": "butir" }],
+      "bahan": ["1 potong lontong", "kol, tauge, kacang panjang, kentang", "1 butir telur", "3 sdm bumbu kacang", "1 potong tahu"],
+      "langkah": ["Rebus sayuran dan telur.", "Susun lontong, sayur, tahu, dan telur di piring.", "Siram dengan bumbu kacang."],
+      "alergen": ["kacang", "telur"], "cocok_untuk": ["jaga", "naik"]
+    },
+    {
+      "slug": "pepes-nila-tumis-kangkung", "nama": "Pepes ikan nila + tumis kangkung", "kategori": "makan_malam",
+      "kalori": 440, "protein": 30, "karbohidrat": 45, "lemak": 14, "waktu_masak_menit": 45, "estimasi_harga": 14000,
+      "porsi": [{ "nama": "Nasi putih", "qty": 0.5, "satuan": "centong" }, { "nama": "Pepes ikan nila", "qty": 1, "satuan": "ekor kecil" }, { "nama": "Tumis kangkung", "qty": 1, "satuan": "mangkok" }],
+      "bahan": ["1 ekor ikan nila kecil", "daun pisang", "bumbu halus (bawang merah, bawang putih, kunyit, kemiri)", "daun kemangi", "1 ikat kangkung", "1 sdt minyak"],
+      "langkah": ["Lumuri ikan dengan bumbu halus, bungkus dengan daun pisang bersama kemangi.", "Kukus 30 menit lalu panggang sebentar.", "Tumis kangkung dengan bawang putih dan garam.", "Sajikan dengan ½ centong nasi."],
+      "alergen": [], "cocok_untuk": ["turun", "jaga", "naik"]
+    },
+    {
+      "slug": "nasi-sup-ayam-sayur", "nama": "Nasi + sup ayam sayur", "kategori": "makan_malam",
+      "kalori": 430, "protein": 26, "karbohidrat": 50, "lemak": 12, "waktu_masak_menit": 30, "estimasi_harga": 12000,
+      "porsi": [{ "nama": "Nasi putih", "qty": 1, "satuan": "centong" }, { "nama": "Sup ayam sayur", "qty": 1, "satuan": "mangkok" }],
+      "bahan": ["1 potong dada ayam kecil", "wortel, kentang, buncis", "1 batang seledri", "2 siung bawang putih", "garam dan merica secukupnya"],
+      "langkah": ["Rebus ayam sampai matang, angkat dan potong.", "Masukkan wortel dan kentang, masak sampai empuk, lalu buncis.", "Bumbui dengan bawang putih, garam, merica; masukkan kembali ayam dan seledri."],
+      "alergen": [], "cocok_untuk": ["turun", "jaga", "naik"]
+    },
+    {
+      "slug": "nasi-merah-tumis-udang-brokoli", "nama": "Nasi merah + tumis udang brokoli", "kategori": "makan_malam",
+      "kalori": 420, "protein": 27, "karbohidrat": 48, "lemak": 12, "waktu_masak_menit": 20, "estimasi_harga": 16000,
+      "porsi": [{ "nama": "Nasi merah", "qty": 1, "satuan": "centong" }, { "nama": "Tumis udang brokoli", "qty": 1, "satuan": "mangkok" }],
+      "bahan": ["1 centong nasi merah", "100 g udang kupas", "1 kuntum brokoli", "2 siung bawang putih", "1 sdt saus tiram", "1 sdt minyak"],
+      "langkah": ["Tumis bawang putih sampai harum.", "Masukkan udang, masak sampai berubah warna.", "Tambahkan brokoli dan saus tiram, masak 3 menit.", "Sajikan dengan nasi merah."],
+      "alergen": ["udang", "seafood"], "cocok_untuk": ["turun", "jaga", "naik"]
+    },
+    {
+      "slug": "nasi-semur-daging-capcay", "nama": "Nasi + semur daging sapi + capcay", "kategori": "makan_malam",
+      "kalori": 520, "protein": 30, "karbohidrat": 52, "lemak": 20, "waktu_masak_menit": 60, "estimasi_harga": 18000,
+      "porsi": [{ "nama": "Nasi putih", "qty": 1, "satuan": "centong" }, { "nama": "Semur daging sapi", "qty": 2, "satuan": "potong" }, { "nama": "Capcay", "qty": 1, "satuan": "mangkok" }],
+      "bahan": ["75 g daging sapi", "2 sdm kecap manis", "bawang merah, bawang putih, pala", "sawi, wortel, kembang kol", "1 sdt minyak"],
+      "langkah": ["Tumis bumbu, masukkan daging dan kecap, tambah air, masak sampai empuk.", "Tumis sayuran capcay sebentar dengan bawang putih.", "Sajikan dengan nasi."],
+      "alergen": ["daging_sapi"], "cocok_untuk": ["jaga", "naik"]
+    },
+    {
+      "slug": "nasi-telur-balado-sayur-sop", "nama": "Nasi + telur balado + sayur sop", "kategori": "makan_malam",
+      "kalori": 450, "protein": 16, "karbohidrat": 55, "lemak": 18, "waktu_masak_menit": 25, "estimasi_harga": 9000,
+      "porsi": [{ "nama": "Nasi putih", "qty": 1, "satuan": "centong" }, { "nama": "Telur balado", "qty": 1, "satuan": "butir" }, { "nama": "Sayur sop", "qty": 1, "satuan": "mangkok" }],
+      "bahan": ["1 butir telur", "cabai merah, bawang merah, tomat", "wortel, kol, kentang", "1 sdt minyak", "garam secukupnya"],
+      "langkah": ["Rebus telur, kupas.", "Tumis bumbu balado, masukkan telur, aduk rata.", "Rebus sayuran sop dengan bawang putih dan garam.", "Sajikan dengan nasi."],
+      "alergen": ["telur", "pedas"], "cocok_untuk": ["turun", "jaga", "naik"]
+    },
+    {
+      "slug": "ubi-rebus", "nama": "Ubi rebus", "kategori": "camilan",
+      "kalori": 140, "protein": 2, "karbohidrat": 33, "lemak": 0, "waktu_masak_menit": 20, "estimasi_harga": 3000,
+      "porsi": [{ "nama": "Ubi rebus", "qty": 1, "satuan": "potong sedang" }],
+      "bahan": ["1 buah ubi ungu atau kuning ukuran sedang"],
+      "langkah": ["Cuci ubi, rebus sampai empuk sekitar 20 menit.", "Tiriskan dan sajikan hangat."],
+      "alergen": [], "cocok_untuk": ["turun", "jaga", "naik"]
+    },
+    {
+      "slug": "pisang-ambon", "nama": "Pisang ambon", "kategori": "camilan",
+      "kalori": 105, "protein": 1, "karbohidrat": 27, "lemak": 0, "waktu_masak_menit": 0, "estimasi_harga": 2500,
+      "porsi": [{ "nama": "Pisang ambon", "qty": 1, "satuan": "buah" }],
+      "bahan": ["1 buah pisang ambon"],
+      "langkah": ["Kupas dan nikmati."],
+      "alergen": [], "cocok_untuk": ["turun", "jaga", "naik"]
+    },
+    {
+      "slug": "yogurt-buah-potong", "nama": "Yogurt plain + buah potong", "kategori": "camilan",
+      "kalori": 150, "protein": 7, "karbohidrat": 22, "lemak": 4, "waktu_masak_menit": 5, "estimasi_harga": 8000,
+      "porsi": [{ "nama": "Yogurt plain", "qty": 1, "satuan": "cup kecil" }, { "nama": "Buah potong", "qty": 0.5, "satuan": "mangkok" }],
+      "bahan": ["1 cup kecil yogurt plain", "pepaya atau melon potong"],
+      "langkah": ["Tuang yogurt ke mangkok, beri buah potong di atasnya."],
+      "alergen": ["susu"], "cocok_untuk": ["turun", "jaga", "naik"]
+    },
+    {
+      "slug": "kacang-rebus", "nama": "Kacang tanah rebus", "kategori": "camilan",
+      "kalori": 160, "protein": 7, "karbohidrat": 9, "lemak": 11, "waktu_masak_menit": 30, "estimasi_harga": 4000,
+      "porsi": [{ "nama": "Kacang tanah rebus", "qty": 1, "satuan": "genggam" }],
+      "bahan": ["1 genggam kacang tanah berkulit", "garam secukupnya"],
+      "langkah": ["Cuci kacang, rebus dengan garam sekitar 30 menit.", "Tiriskan dan sajikan."],
+      "alergen": ["kacang"], "cocok_untuk": ["jaga", "naik"]
+    },
+    {
+      "slug": "jagung-rebus", "nama": "Jagung rebus", "kategori": "camilan",
+      "kalori": 130, "protein": 4, "karbohidrat": 29, "lemak": 2, "waktu_masak_menit": 20, "estimasi_harga": 4000,
+      "porsi": [{ "nama": "Jagung rebus", "qty": 1, "satuan": "buah" }],
+      "bahan": ["1 buah jagung manis"],
+      "langkah": ["Rebus jagung sekitar 15–20 menit sampai matang.", "Tiriskan dan sajikan."],
+      "alergen": [], "cocok_untuk": ["turun", "jaga", "naik"]
+    }
+  ]
+}
