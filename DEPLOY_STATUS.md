@@ -1,5 +1,21 @@
 # DEPLOY_STATUS.md
 
+## Pembaruan 23 Nov 2026
+- Supabase: migrasi 0001 + 0002 sudah jalan, Email provider aktif, Confirm email OFF. Alur Annisa lulus (lihat TESTING.md).
+- Branch `claude/smart-nutriplan-mvp` sudah di-merge (fast-forward) ke `main` dan di-push (commit `66f1501`).
+- Vercel (proyek `novaldo-putras-projects/smart-nutriplan`) melaporkan build commit itu **success**.
+- Tapi belum bisa diakses publik:
+  - `https://smart-nutriplan.vercel.app` → `404 NOT_FOUND` dari Vercel (domain ini belum terpasang ke proyek).
+  - `https://smart-nutriplan-novaldo-putras-projects.vercel.app` → dialihkan ke login Vercel (Deployment Protection aktif).
+- Langkah tersisa:
+  1. Vercel → proyek → Settings → **Domains**: pastikan `smart-nutriplan.vercel.app` terpasang ke Production
+     (tambahkan bila belum; kalau nama itu dipakai pihak lain, pakai domain yang ditampilkan Vercel).
+  2. Settings → **Deployment Protection** → matikan "Vercel Authentication" (atau set ke "Only Preview Deployments")
+     supaya responden bisa membuka tanpa akun Vercel.
+  3. Settings → Environment Variables: pastikan `NEXT_PUBLIC_SUPABASE_URL` & `NEXT_PUBLIC_SUPABASE_ANON_KEY` ada untuk
+     Production, lalu Redeploy bila baru ditambahkan.
+  4. Lanjut ke bagian "4. Setelah online" di bawah.
+
 **Status: kode siap, BELUM online.** Sesi Claude Code ini tidak punya `NEXT_PUBLIC_SUPABASE_URL`,
 `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `VERCEL_TOKEN`, maupun token Supabase CLI, sehingga migrasi database dan deploy
 Vercel tidak bisa dijalankan otomatis.
